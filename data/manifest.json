@@ -1,0 +1,9 @@
+{
+  "ships": [
+    "Orca",
+    "Escort_Drone",
+    "SKETHER_QAN_MESSENGER_CLASS_STARSHIP",
+    "KIR_QATH_DEFENDER_CLASS_STARSHIP"
+  ],
+  "commanders": []
+}
