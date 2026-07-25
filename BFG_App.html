@@ -394,15 +394,16 @@ get('ship-modal').querySelectorAll('.mtab').forEach(function(tab){tab.addEventLi
 
 function buildWpnTable(weapons){
   if(!weapons||!weapons.length) return '<p style="color:var(--dim);font-size:.82rem;">Nincs fegyver adat.</p>';
-  return '<table style="width:100%;border-collapse:collapse;font-size:.8rem;"><thead><tr style="background:#0d0d15;">'
-    +'<th style="padding:.3rem .5rem;text-align:left;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);">Armament</th>'
-    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);">Range</th>'
-    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);">FP/Str</th>'
-    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);">Arc</th>'
-    +'<th style="padding:.3rem .5rem;text-align:left;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);">Loc</th>'
+  var table='<table style="width:100%;min-width:480px;border-collapse:collapse;font-size:.8rem;"><thead><tr style="background:#0d0d15;">'
+    +'<th style="padding:.3rem .5rem;text-align:left;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Armament</th>'
+    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Range</th>'
+    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">FP/Str</th>'
+    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Arc</th>'
+    +'<th style="padding:.3rem .5rem;text-align:left;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Loc</th>'
     +'</tr></thead><tbody>'
-    +weapons.map(function(w,i){var locs=(w.locations||[]).join(', ');var optBadge=w.optional?'<span style="background:var(--orange);color:#0a0a0f;padding:.07rem .25rem;border-radius:2px;font-size:.63rem;font-weight:bold;margin-left:.25rem;">+'+( w.pts||0)+'pts</span>':'';return '<tr style="'+(i%2===1?'background:#0d0d16;':'')+'"><td style="padding:.3rem .5rem;font-weight:bold;color:var(--gold);">'+esc(w.name||'')+optBadge+'</td><td style="padding:.3rem .5rem;text-align:center;">'+esc(w.range||'—')+'</td><td style="padding:.3rem .5rem;text-align:center;">'+esc(w.fp||'—')+'</td><td style="padding:.3rem .5rem;text-align:center;">'+esc(w.arc||'—')+'</td><td style="padding:.3rem .5rem;color:var(--dim);font-size:.75rem;">'+esc(locs||'—')+'</td></tr>';}).join('')
+    +weapons.map(function(w,i){var locs=(w.locations||[]).join(', ');var optBadge=w.optional?'<span style="background:var(--orange);color:#0a0a0f;padding:.07rem .25rem;border-radius:2px;font-size:.63rem;font-weight:bold;margin-left:.25rem;white-space:nowrap;">+'+( w.pts||0)+'pts</span>':'';return '<tr style="'+(i%2===1?'background:#0d0d16;':'')+'"><td style="padding:.3rem .5rem;font-weight:bold;color:var(--gold);white-space:nowrap;">'+esc(w.name||'')+optBadge+'</td><td style="padding:.3rem .5rem;text-align:center;white-space:nowrap;">'+esc(w.range||'—')+'</td><td style="padding:.3rem .5rem;text-align:center;white-space:nowrap;">'+esc(w.fp||'—')+'</td><td style="padding:.3rem .5rem;text-align:center;white-space:nowrap;">'+esc(w.arc||'—')+'</td><td style="padding:.3rem .5rem;color:var(--dim);font-size:.75rem;white-space:nowrap;">'+esc(locs||'—')+'</td></tr>';}).join('')
     +'</tbody></table>';
+  return '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:4px;">'+table+'</div>';
 }
 
 function showShipModal(ship){
