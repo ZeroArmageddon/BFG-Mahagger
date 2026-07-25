@@ -423,6 +423,7 @@ function showCmdModal(cmd){get('m-cmd-name').textContent=cmd.name;get('m-cmd-sta
 // ---- FLEET RENDER ----
 function renderFleet(){
   var f=activeFleet(),el=get('fleet-ships');
+  var editOn=get('edit-toggle').checked;
   if(!f.fleet.length){el.innerHTML='<div class="empty"><div class="empty-icon">🚀</div><p>Kapcsold be a szerkesztő módot!</p></div>';get('fleet-count').textContent='0 hajó';updatePtsBar();return;}
   var total=0,html='';
   f.fleet.forEach(function(entry,idx){
@@ -434,28 +435,62 @@ function renderFleet(){
     if(ship.weapons&&ship.weapons.length){
       var optWpns=ship.weapons.filter(function(w){return w.optional;});
       if(optWpns.length){
-        extrasHtml+=optWpns.map(function(wp){var qty=(entry.weapons||{})[wp.id]||0;wpExtra+=(wp.pts||0)*qty;var locs=(wp.locations||[]).join('/');return '<div class="wg-row"><button class="wqb" data-idx="'+idx+'" data-wpn="'+wp.id+'" data-dir="-1" data-max="'+(wp.max||1)+'">−</button><span class="wqn">'+qty+'</span><button class="wqb" data-idx="'+idx+'" data-wpn="'+wp.id+'" data-dir="1" data-max="'+(wp.max||1)+'">+</button><span class="wg-lbl">🔫 '+esc(wp.name)+(locs?' <span style="font-size:.68rem;color:var(--dim);">('+esc(locs)+')</span>':'')+'</span><span class="wg-pts-lbl">+'+(wp.pts||0)+'pts</span></div>';}).join('');
+        optWpns.forEach(function(wp){
+          var qty=(entry.weapons||{})[wp.id]||0;
+          wpExtra+=(wp.pts||0)*qty;
+          var locs=(wp.locations||[]).join('/');
+          if(editOn){
+            // show +/- controls always in edit mode
+            extrasHtml+='<div class="wg-row"><button class="wqb" data-idx="'+idx+'" data-wpn="'+wp.id+'" data-dir="-1" data-max="'+(wp.max||1)+'">−</button><span class="wqn">'+qty+'</span><button class="wqb" data-idx="'+idx+'" data-wpn="'+wp.id+'" data-dir="1" data-max="'+(wp.max||1)+'">+</button><span class="wg-lbl">🔫 '+esc(wp.name)+(locs?' <span style="font-size:.68rem;color:var(--dim);">('+esc(locs)+')</span>':'')+'</span><span class="wg-pts-lbl">+'+(wp.pts||0)+'pts</span></div>';
+          } else if(qty>0){
+            // outside edit mode: only show selected ones
+            extrasHtml+='<div class="wg-row"><span style="color:var(--gold);font-size:.8rem;">🔫</span><span class="wg-lbl">'+esc(wp.name)+(locs?' ('+esc(locs)+')':'')+'</span><span class="wg-pts-lbl">×'+qty+'</span></div>';
+          }
+        });
       }
     }
     // wargear
     if(ship.wargear&&ship.wargear.length){
-      extrasHtml+=ship.wargear.map(function(wg){var qty=(entry.wargear||{})[wg.id]||0;wgExtra+=wg.pts*qty;return '<div class="wg-row"><button class="wqb" data-idx="'+idx+'" data-wg="'+wg.id+'" data-dir="-1" data-max="'+(wg.max||1)+'">−</button><span class="wqn">'+qty+'</span><button class="wqb" data-idx="'+idx+'" data-wg="'+wg.id+'" data-dir="1" data-max="'+(wg.max||1)+'">+</button><span class="wg-lbl">⚙️ '+esc(wg.name)+'</span><span class="wg-pts-lbl">+'+wg.pts+'pts</span></div>';}).join('');
+      ship.wargear.forEach(function(wg){
+        var qty=(entry.wargear||{})[wg.id]||0;
+        wgExtra+=wg.pts*qty;
+        if(editOn){
+          extrasHtml+='<div class="wg-row"><button class="wqb" data-idx="'+idx+'" data-wg="'+wg.id+'" data-dir="-1" data-max="'+(wg.max||1)+'">−</button><span class="wqn">'+qty+'</span><button class="wqb" data-idx="'+idx+'" data-wg="'+wg.id+'" data-dir="1" data-max="'+(wg.max||1)+'">+</button><span class="wg-lbl">⚙️ '+esc(wg.name)+'</span><span class="wg-pts-lbl">+'+wg.pts+'pts</span></div>';
+        } else if(qty>0){
+          extrasHtml+='<div class="wg-row"><span style="color:var(--gold);font-size:.8rem;">⚙️</span><span class="wg-lbl">'+esc(wg.name)+'</span><span class="wg-pts-lbl">×'+qty+'</span></div>';
+        }
+      });
     }
     if(extrasHtml) extrasHtml='<div>'+extrasHtml+'</div>';
     var tpts=ship.points+wgExtra+wpExtra;
     var breakdown='<div class="fe-breakdown">Hajó: '+ship.points+' pts'+(wpExtra>0?' · Fegyver: +'+wpExtra+' pts':'')+(wgExtra>0?' · Wargear: +'+wgExtra+' pts':'')+'</div>';
+    // variant selector — only in edit mode, otherwise just show badge
     var varHtml='';
     if(baseShip.variants&&baseShip.variants.length){
-      varHtml='<div class="var-select-row"><label>Variáció:</label><select class="var-sel" data-idx="'+idx+'"><option value="">— Alap —</option>'+baseShip.variants.map(function(v){return '<option value="'+v.id+'"'+(entry.variantId===v.id?' selected':'')+'>'+esc(v.name)+'</option>';}).join('')+'</select>'+(entry.variantId?'<span class="var-badge">🔀 '+esc(ship._varName)+'</span>':'')+'</div>';
+      if(editOn){
+        varHtml='<div class="var-select-row"><label>Variáció:</label><select class="var-sel" data-idx="'+idx+'"><option value="">— Alap —</option>'+baseShip.variants.map(function(v){return '<option value="'+v.id+'"'+(entry.variantId===v.id?' selected':'')+'>'+esc(v.name)+'</option>';}).join('')+'</select></div>';
+      } else if(entry.variantId){
+        varHtml='<div style="margin-top:.15rem;"><span class="var-badge">🔀 '+esc(ship._varName)+'</span></div>';
+      }
     }
     html+='<div class="fe">'+(ship.image?'<img class="fe-thumb" src="'+esc(ship.image)+'" alt="">':'')
       +'<div class="fe-info" data-sid="'+baseShip.id+'" data-idx="'+idx+'"><div class="fe-name">'+esc(ship.name)+'</div><div class="fe-pts">'+tpts+' pts</div>'+breakdown+varHtml+extrasHtml+'</div>'
       +'<div class="fe-right"><button class="rm-btn" data-idx="'+idx+'">×</button></div></div>';
   });
   el.innerHTML=html;get('fleet-count').textContent=total+' hajó';
-  el.querySelectorAll('.fe-info').forEach(function(d){d.addEventListener('click',function(e){if(e.target.tagName==='SELECT'||e.target.tagName==='BUTTON'||e.target.tagName==='OPTION')return;var ship=resolveShip(activeFleet().fleet.find(function(x){return x.shipId===d.dataset.sid;})||{shipId:d.dataset.sid,variantId:null,wargear:{},weapons:{}});if(ship)showShipModal(ship);});});
+  el.querySelectorAll('.fe-info').forEach(function(d){d.addEventListener('click',function(e){if(e.target.tagName==='SELECT'||e.target.tagName==='BUTTON'||e.target.tagName==='OPTION')return;var entry=activeFleet().fleet[parseInt(d.dataset.idx)];var ship=resolveShip(entry||{shipId:d.dataset.sid,variantId:null,wargear:{},weapons:{}});if(ship)showShipModal(ship);});});
   el.querySelectorAll('.rm-btn').forEach(function(btn){btn.addEventListener('click',function(){var f=activeFleet(),i=parseInt(btn.dataset.idx);f.fleet.splice(i,1);saveFleets();renderFleet();renderTabs();updatePtsBar();});});
-  el.querySelectorAll('.var-sel').forEach(function(sel){sel.addEventListener('change',function(){var f=activeFleet(),idx=parseInt(sel.dataset.idx);f.fleet[idx].variantId=sel.value||null;f.fleet[idx].wargear={};f.fleet[idx].weapons={};saveFleets();renderFleet();renderTabs();updatePtsBar();});});
+  el.querySelectorAll('.var-sel').forEach(function(sel){
+    sel.addEventListener('click',function(e){e.stopPropagation();});
+    sel.addEventListener('change',function(e){
+      e.stopPropagation();
+      var f=activeFleet(),idx=parseInt(sel.dataset.idx);
+      if(!f.fleet[idx]) return;
+      f.fleet[idx].variantId=sel.value||null;
+      f.fleet[idx].wargear={};f.fleet[idx].weapons={};
+      saveFleets();renderFleet();renderTabs();updatePtsBar();
+    });
+  });
   el.querySelectorAll('.wqb').forEach(function(btn){btn.addEventListener('click',function(){var f=activeFleet(),idx=parseInt(btn.dataset.idx),dir=parseInt(btn.dataset.dir),maxQ=parseInt(btn.dataset.max||1);if(btn.dataset.wg){if(!f.fleet[idx].wargear)f.fleet[idx].wargear={};var cur=f.fleet[idx].wargear[btn.dataset.wg]||0;var nv=Math.max(0,Math.min(maxQ,cur+dir));if(nv===0)delete f.fleet[idx].wargear[btn.dataset.wg];else f.fleet[idx].wargear[btn.dataset.wg]=nv;}else if(btn.dataset.wpn){if(!f.fleet[idx].weapons)f.fleet[idx].weapons={};var cur2=f.fleet[idx].weapons[btn.dataset.wpn]||0;var nv2=Math.max(0,Math.min(maxQ,cur2+dir));if(nv2===0)delete f.fleet[idx].weapons[btn.dataset.wpn];else f.fleet[idx].weapons[btn.dataset.wpn]=nv2;}saveFleets();renderFleet();renderTabs();updatePtsBar();});});
   updatePtsBar();
 }
@@ -545,35 +580,82 @@ function renderBattle(){
     var baseShip=ship._baseShip||ship;
     if(btf&&baseShip.type!==btf)return;
     if(bff&&baseShip.faction!==bff)return;
-    // Each copy of the same entry gets its own battle key
     for(var copy=0;copy<entry.count;copy++){
       var key=activeFleetId+'_'+idx+'_'+copy;
-      if(!battleState[key]){var mhp=getMaxHp(ship);battleState[key]={hp:mhp,maxHp:mhp,crits:{},open:false};}
+      if(!battleState[key]){var mhp=getMaxHp(ship);battleState[key]={hp:mhp,maxHp:mhp,crits:{},open:false,leadership:8,critOpen:false};}
       var st=battleState[key];
+      if(st.leadership===undefined) st.leadership=8;
+      if(st.critOpen===undefined) st.critOpen=false;
       var pct=Math.max(0,Math.min(100,(st.hp/st.maxHp)*100));var cls=pct<=25?'crit':pct<=50?'low':'';
       var shipLabel=esc(ship.name)+(entry.count>1?' #'+(copy+1):'');
+      // only selected optional weapons
+      var selectedWpns=ship.weapons?ship.weapons.filter(function(w){return !w.optional||((entry.weapons||{})[w.id]||0)>0;}):[];
       html+='<div class="bc'+(st.hp<=0?' destroyed':'')+'"><div class="bc-head'+(st.open?' open':'')+'" data-key="'+key+'">'
         +(ship.image?'<img class="bc-img" src="'+esc(ship.image)+'" alt="">':'<div class="bc-img" style="background:var(--inp);border-radius:4px;"></div>')
-        +'<div class="bc-info"><div class="bc-name">'+shipLabel+(st.hp<=0?' <span style="color:var(--red);font-size:.76rem;">💀</span>':'')+'</div><div class="bc-sub">'+esc(baseShip.faction||'')+(baseShip.type?' · '+esc(baseShip.type):'')+' · '+st.hp+'/'+st.maxHp+' HP</div></div>'
+        +'<div class="bc-info"><div class="bc-name">'+shipLabel+(st.hp<=0?' <span style="color:var(--red);font-size:.76rem;">💀</span>':'')+'</div>'
+        +'<div class="bc-sub">'+esc(baseShip.faction||'')+(baseShip.type?' · '+esc(baseShip.type):'')+' · '+st.hp+'/'+st.maxHp+' HP · LD '+st.leadership+'</div></div>'
         +'<div style="color:var(--dim);font-size:.8rem;padding-left:.5rem;">'+(st.open?'▲':'▼')+'</div></div>'
-        +'<div class="bc-body'+(st.open?' open':'')+'">'+buildHpSection(key,st,pct,cls)+buildCritTable(key,st.crits||{})+buildWeaponsSec(ship)+'</div></div>';
+        +'<div class="bc-body'+(st.open?' open':'')+'">'+buildHpSection(key,st,pct,cls)
+        +buildLeadershipSection(key,st)
+        +buildStatsSection(ship)
+        +buildCritTableCollapsible(key,st.crits||{},st.critOpen)
+        +buildWeaponsSec(selectedWpns)+'</div></div>';
     }
   });
   f.commanders.forEach(function(cid,idx){var c=commanders.find(function(x){return x.id===cid;});if(!c)return;var key='cmd_'+activeFleetId+'_'+idx;if(!battleState[key])battleState[key]={open:false};var st=battleState[key];html+='<div class="bc" style="border-color:var(--pdim);"><div class="bc-head'+(st.open?' open':'')+'" data-key="'+key+'"><div class="bc-info"><div class="bc-name" style="color:#a07aee;">👑 '+esc(c.name)+'</div><div class="bc-sub">'+c.points+' pts'+(c.faction?' · '+esc(c.faction):'')+'</div></div><div style="color:var(--dim);font-size:.8rem;padding-left:.5rem;">'+(st.open?'▲':'▼')+'</div></div><div class="bc-body'+(st.open?' open':'')+'"><p style="color:var(--dim);font-size:.83rem;">'+esc(c.desc||'Nincs leírás')+'</p></div></div>';});
   el.innerHTML=html;
-  // bind events
+  // toggle open/close
   el.querySelectorAll('.bc-head').forEach(function(head){head.addEventListener('click',function(){var key=head.dataset.key;if(battleState[key]){battleState[key].open=!battleState[key].open;saveBattle();renderBattle();}});});
+  // crit table toggle
+  el.querySelectorAll('.crit-toggle').forEach(function(div){div.addEventListener('click',function(e){e.stopPropagation();var key=div.dataset.key;if(battleState[key]){battleState[key].critOpen=!battleState[key].critOpen;saveBattle();renderBattle();}});});
+  // HP
   el.querySelectorAll('.hp-adj').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var key=btn.dataset.key,d=parseInt(btn.dataset.d),st=battleState[key];if(!st)return;st.hp=Math.max(0,Math.min(st.maxHp,st.hp+d));saveBattle();renderBattle();});});
   el.querySelectorAll('.hp-set-btn').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var key=btn.dataset.key,inp=el.querySelector('.hp-set-inp[data-key="'+key+'"]'),st=battleState[key];if(!st||!inp)return;st.hp=Math.max(0,Math.min(st.maxHp,parseInt(inp.value)||0));saveBattle();renderBattle();});});
   el.querySelectorAll('.hp-set-inp').forEach(function(inp){inp.addEventListener('click',function(e){e.stopPropagation();});});
+  // Leadership
+  el.querySelectorAll('.ld-adj').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var key=btn.dataset.key,d=parseInt(btn.dataset.d),st=battleState[key];if(!st)return;st.leadership=Math.max(1,Math.min(10,(st.leadership||8)+d));saveBattle();renderBattle();});});
+  el.querySelectorAll('.ld-set-btn').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var key=btn.dataset.key,inp=el.querySelector('.ld-set-inp[data-key="'+key+'"]'),st=battleState[key];if(!st||!inp)return;st.leadership=Math.max(1,Math.min(10,parseInt(inp.value)||8));saveBattle();renderBattle();});});
+  el.querySelectorAll('.ld-set-inp').forEach(function(inp){inp.addEventListener('click',function(e){e.stopPropagation();});});
+  // Crits
   el.querySelectorAll('.ccb').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var key=btn.dataset.key,roll=parseInt(btn.dataset.roll),dir=parseInt(btn.dataset.dir),st=battleState[key];if(!st)return;if(!st.crits)st.crits={};st.crits[roll]=Math.max(0,(st.crits[roll]||0)+dir);saveBattle();renderBattle();});});
 }
 get('battle-type-filter').addEventListener('change',renderBattle);
 get('battle-faction-filter').addEventListener('change',renderBattle);
 
-function buildHpSection(key,st,pct,cls){return '<div style="margin-bottom:.9rem;"><div class="hp-row"><span style="color:var(--dim);">Hull Points</span><span class="hp-val '+cls+'">'+st.hp+' / '+st.maxHp+'</span></div><div class="hp-track"><div class="hp-fill '+cls+'" style="width:'+pct+'%"></div></div><div class="hp-ctrl"><button class="btn bd bsm hp-adj" data-key="'+key+'" data-d="-1">−1 Sérülés</button><button class="btn bgr bsm hp-adj" data-key="'+key+'" data-d="1">+1 Javítás</button><input type="number" class="hp-set-inp" data-key="'+key+'" value="'+st.hp+'" min="0" max="'+st.maxHp+'"><button class="btn bgh bsm hp-set-btn" data-key="'+key+'">Beállít</button></div></div>';}
-function buildCritTable(key,crits){var rows=CRITS.map(function(c){var n=crits[c.roll]||0;var fires='';for(var i=0;i<n;i++)fires+='<span class="fire">🔥</span>';return '<tr><td class="cr">'+c.roll+'</td><td class="cd">'+c.dmg+'</td><td><div class="cc"><button class="ccb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="-1">−</button><span class="ccn">'+n+'</span><button class="ccb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="1">+</button></div></td><td><span class="crit-nm">'+esc(c.name)+'</span></td><td><div class="fires">'+fires+'</div></td></tr>';}).join('');return '<div style="margin-bottom:.9rem;"><div style="color:var(--gold);font-size:.87rem;font-weight:bold;margin-bottom:.45rem;">💥 Kritikus Találatok</div><table class="crit-tbl"><thead><tr><th>2D6</th><th>+Dmg</th><th>Db</th><th>Eredmény</th><th>🔥</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
-function buildWeaponsSec(ship){if(!ship.weapons||!ship.weapons.length)return '';return '<div style="margin-top:.5rem;"><div style="color:var(--gold);font-size:.87rem;font-weight:bold;margin-bottom:.45rem;">🔫 Fegyverek</div>'+buildWpnTable(ship.weapons)+'</div>';}
+function buildHpSection(key,st,pct,cls){return '<div style="margin-bottom:.75rem;"><div class="hp-row"><span style="color:var(--dim);">Hull Points</span><span class="hp-val '+cls+'">'+st.hp+' / '+st.maxHp+'</span></div><div class="hp-track"><div class="hp-fill '+cls+'" style="width:'+pct+'%"></div></div><div class="hp-ctrl"><button class="btn bd bsm hp-adj" data-key="'+key+'" data-d="-1">−1 Sérülés</button><button class="btn bgr bsm hp-adj" data-key="'+key+'" data-d="1">+1 Javítás</button><input type="number" class="hp-set-inp" data-key="'+key+'" value="'+st.hp+'" min="0" max="'+st.maxHp+'"><button class="btn bgh bsm hp-set-btn" data-key="'+key+'">Beállít</button></div></div>';}
+
+function buildLeadershipSection(key,st){
+  var ld=st.leadership!==undefined?st.leadership:8;
+  return '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap;">'
+    +'<span style="color:var(--dim);font-size:.83rem;">⭐ Leadership:</span>'
+    +'<button class="btn bd bsm ld-adj" data-key="'+key+'" data-d="-1" style="padding:.2rem .45rem;">−</button>'
+    +'<span style="font-size:1.05rem;font-weight:bold;color:var(--gold);min-width:22px;text-align:center;">'+ld+'</span>'
+    +'<button class="btn bgr bsm ld-adj" data-key="'+key+'" data-d="1" style="padding:.2rem .45rem;">+</button>'
+    +'<input type="number" class="ld-set-inp" data-key="'+key+'" value="'+ld+'" min="1" max="10" style="width:52px;padding:.25rem .38rem;background:var(--inp);border:1px solid #333;color:var(--txt);border-radius:4px;font-size:.85rem;text-align:center;">'
+    +'<button class="btn bgh bsm ld-set-btn" data-key="'+key+'" style="padding:.22rem .45rem;">Beállít</button>'
+    +'</div>';
+}
+
+function buildStatsSection(ship){
+  if(!ship.stats) return '';
+  return '<div style="background:var(--inp);border-radius:4px;padding:.55rem .75rem;margin-bottom:.75rem;font-size:.82rem;white-space:pre-wrap;color:var(--dim);">'+esc(ship.stats)+'</div>';
+}
+
+function buildCritTableCollapsible(key,crits,open){
+  var totalCrits=Object.values(crits).reduce(function(s,v){return s+v;},0);
+  var header='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;cursor:pointer;" class="crit-toggle" data-key="'+key+'">'
+    +'<span style="color:var(--gold);font-size:.87rem;font-weight:bold;">💥 Kritikus Találatok'+(totalCrits>0?' <span style="background:var(--red);color:#fff;padding:.08rem .32rem;border-radius:3px;font-size:.72rem;">'+totalCrits+'</span>':'')+'</span>'
+    +'<span style="color:var(--dim);font-size:.8rem;">'+(open?'▲ Összecsuk':'▼ Kibont')+'</span>'
+    +'</div>';
+  if(!open) return '<div style="margin-bottom:.75rem;">'+header+'</div>';
+  var rows=CRITS.map(function(c){var n=crits[c.roll]||0;var fires='';for(var i=0;i<n;i++)fires+='<span class="fire">🔥</span>';return '<tr><td class="cr">'+c.roll+'</td><td class="cd">'+c.dmg+'</td><td><div class="cc"><button class="ccb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="-1">−</button><span class="ccn">'+n+'</span><button class="ccb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="1">+</button></div></td><td><span class="crit-nm">'+esc(c.name)+'</span><div style="font-size:.72rem;color:var(--dim);">'+esc(c.desc)+'</div></td><td><div class="fires">'+fires+'</div></td></tr>';}).join('');
+  return '<div style="margin-bottom:.75rem;">'+header+'<table class="crit-tbl"><thead><tr><th>2D6</th><th>+Dmg</th><th>Db</th><th>Eredmény</th><th>🔥</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function buildWeaponsSec(weapons){
+  if(!weapons||!weapons.length)return '';
+  return '<div style="margin-top:.5rem;"><div style="color:var(--gold);font-size:.87rem;font-weight:bold;margin-bottom:.45rem;">🔫 Fegyverek</div>'+buildWpnTable(weapons)+'</div>';
+}
 
 // ============================================================
 // INIT
