@@ -1,0 +1,9 @@
+{
+  "id": "_ms04ynpfcnl9w",
+  "name": "Hive Mind Influence re-roll",
+  "points": 30,
+  "faction": "Tyranid",
+  "type": "",
+  "desc": "A maximum of one Hive Mind Influence re-roll\ncan be purchased per hive ship in the fleet.",
+  "_type": "commander"
+}

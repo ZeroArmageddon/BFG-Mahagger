@@ -1,0 +1,9 @@
+{
+  "id": "_ms052vz54v91d",
+  "name": "Tau Kor’O (Ld 9)",
+  "points": 80,
+  "faction": "Tau",
+  "type": "Fleet commander",
+  "desc": "Ld 9\n\nThe commander has one re-roll included in his\npoints cost. If you wish, the commander’s ship\nmay carry a member of the Ethereal caste and\ntherefore purchase additional re-rolls",
+  "_type": "commander"
+}

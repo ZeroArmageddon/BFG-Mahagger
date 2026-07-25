@@ -1,0 +1,9 @@
+{
+  "id": "_ms054fu4qqh0m",
+  "name": "Aun’O (two extra re-rolls)",
+  "points": 75,
+  "faction": "Tau",
+  "type": "",
+  "desc": "Two extra re-rolls",
+  "_type": "commander"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "_ms04v32fn9918",
+  "name": "One extra re-roll",
+  "points": 25,
+  "faction": "Necron",
+  "type": "",
+  "desc": "A Necron fleet may purchase re-rolls, but they\nare purchased by the fleet as a whole, rather than\nbeing considered Fleet Commander re-rolls. The\n\nfleet gets one re-roll and can purchase extra re-\nrolls at the cost shown.",
+  "_type": "commander"
+}

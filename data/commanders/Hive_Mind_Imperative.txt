@@ -1,0 +1,9 @@
+{
+  "id": "_ms04z5p1g2e6l",
+  "name": "Hive Mind Imperative",
+  "points": 40,
+  "faction": "Tyranid",
+  "type": "",
+  "desc": "A maximum of one Hive Mind Imperative can be\npurchased per two hive ships in the fleet, though\na single Hive Mind Imperative may be purchased\nas long as the fleet contains at least one hive ship.",
+  "_type": "commander"
+}
