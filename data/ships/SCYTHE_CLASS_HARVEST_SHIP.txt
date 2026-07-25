@@ -3,7 +3,7 @@
   "name": "SCYTHE CLASS HARVEST SHIP",
   "type": "Cruiser",
   "faction": "Necron",
-  "subfaction": "Neron",
+  "subfaction": "Necron",
   "points": 275,
   "hits": 8,
   "stats": "Speed: 30cm\nTurn: 45°\nShield: 5+ save\nArmour: 6+\nTurret: 3\nBase: 32mm",
