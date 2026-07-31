@@ -95,7 +95,7 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
     <p style="color:var(--dim);font-size:.78rem;margin-bottom:.65rem;">
       <b style="color:var(--gold);">Helyi:</b> localStorage-ban maradnak. Exportáld → töltsd fel a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/ships/</code> és <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/commanders/</code> mappákba.<br>
       <b style="color:var(--gold);">GitHub Pages:</b> <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/manifest.json</code> alapján tölt be.<br>
-      <b style="color:var(--orange);">Unofficial hajók:</b> külön mappa/manifest: <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/unofficial_ships/unofficial_manifest.json</code>
+      <b style="color:var(--orange);">Unofficial hajók:</b> a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/unofficial_manifest.json</code> a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/manifest.json</code> mellé kerül (nem a mappán belülre!) — ugyanúgy, ahogy a manifest.json is a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/ships/</code> mappa mellett ül. A hajó .txt fájlok viszont a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/unofficial_ships/</code> mappába kerülnek. Formátum: <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">{"unofficial_ships": [...]}</code>
     </p>
     <div class="brow" style="margin-bottom:.45rem;">
       <b style="color:var(--gold);font-size:.8rem;align-self:center;">📤 Hivatalos Export:</b>
@@ -247,7 +247,7 @@ function toast(msg, col) { var el=get('toast'); el.textContent=msg; el.style.bor
 function expShip(ship) { var d=Object.assign({},ship); delete d._type; dl(JSON.stringify(d,null,2),fname(ship.name)+'.txt'); }
 function expCmd(cmd)   { dl(JSON.stringify(Object.assign({},cmd,{_type:'commander'}),null,2),fname(cmd.name)+'.txt'); }
 function expManifest() { dl(JSON.stringify({ships:ships.filter(function(s){return !s.unofficial;}).map(function(s){return fname(s.name);}),commanders:commanders.map(function(c){return fname(c.name);})},null,2),'manifest.json'); }
-function expUnofficialManifest() { dl(JSON.stringify({ships:ships.filter(function(s){return s.unofficial;}).map(function(s){return fname(s.name);})},null,2),'unofficial_manifest.json'); }
+function expUnofficialManifest() { dl(JSON.stringify({unofficial_ships:ships.filter(function(s){return s.unofficial;}).map(function(s){return fname(s.name);})},null,2),'unofficial_manifest.json'); }
 
 get('btn-exp-ships').addEventListener('click',function(){ var off=ships.filter(function(s){return !s.unofficial;}); if(!off.length){toast('Nincs hivatalos hajó.','var(--dim)');return;} off.forEach(expShip); toast('✅ '+off.length+' hivatalos hajó .txt letöltve — data/ships/ mappába','var(--green)'); });
 get('btn-exp-cmds').addEventListener('click',function(){ if(!commanders.length){toast('Nincs commander.','var(--dim)');return;} commanders.forEach(expCmd); toast('✅ '+commanders.length+' commander .txt letöltve','var(--green)'); });
@@ -255,7 +255,7 @@ get('btn-exp-manifest').addEventListener('click',function(){ expManifest(); toas
 var btnExpUnofficial=get('btn-exp-unofficial');
 if(btnExpUnofficial) btnExpUnofficial.addEventListener('click',function(){ var un=ships.filter(function(s){return s.unofficial;}); if(!un.length){toast('Nincs unofficial hajó.','var(--dim)');return;} un.forEach(expShip); toast('✅ '+un.length+' unofficial hajó .txt letöltve — data/unofficial_ships/ mappába','var(--orange)'); });
 var btnExpUnofficialManifest=get('btn-exp-unofficial-manifest');
-if(btnExpUnofficialManifest) btnExpUnofficialManifest.addEventListener('click',function(){ expUnofficialManifest(); toast('✅ unofficial_manifest.json letöltve','var(--orange)'); });
+if(btnExpUnofficialManifest) btnExpUnofficialManifest.addEventListener('click',function(){ expUnofficialManifest(); toast('✅ unofficial_manifest.json letöltve — data/ mappa gyökerébe (manifest.json mellé)','var(--orange)'); });
 
 get('btn-reload').addEventListener('click',function(){ if(IS_LOCAL){toast('Helyi módban nem elérhető.','var(--orange)');return;} autoLoad(); });
 get('import-files').addEventListener('change',function(){
@@ -283,10 +283,10 @@ async function autoLoad() {
   }catch(eMain){ fail.push('manifest.json'); }
   // unofficial ships — separate folder & manifest
   try{
-    var uRes=await fetch('./data/unofficial_ships/unofficial_manifest.json?_='+Date.now());
+    var uRes=await fetch('./data/unofficial_manifest.json?_='+Date.now());
     if(uRes.ok){
       var uManifest=await uRes.json();
-      for(var k=0;k<(uManifest.ships||[]).length;k++){var un=uManifest.ships[k];try{var r3=await fetch('./data/unofficial_ships/'+un+'.txt?_='+Date.now());if(!r3.ok)throw 0;var obj3=JSON.parse(await r3.text());obj3.unofficial=true;ships=ships.filter(function(x){return x.id!==obj3.id;});ships.push(obj3);u++;}catch(e4){fail.push(un);}}
+      for(var k=0;k<(uManifest.unofficial_ships||[]).length;k++){var un=uManifest.unofficial_ships[k];try{var r3=await fetch('./data/unofficial_ships/'+un+'.txt?_='+Date.now());if(!r3.ok)throw 0;var obj3=JSON.parse(await r3.text());obj3.unofficial=true;ships=ships.filter(function(x){return x.id!==obj3.id;});ships.push(obj3);u++;}catch(e4){fail.push(un);}}
     }
   }catch(eUn){ /* unofficial manifest optional — no error shown if missing */ }
   saveShips(); renderDevShips(); renderDevCmds();
