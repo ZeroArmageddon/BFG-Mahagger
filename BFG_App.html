@@ -309,6 +309,13 @@ function loadAll(){
   try{battleState=JSON.parse(localStorage.getItem('bfg_battle')||'{}');}catch(e){battleState={};}
   try{enabledPackages=JSON.parse(localStorage.getItem('bfg_enabled_packages')||'[]');}catch(e){enabledPackages=[];}
 }
+// Re-read ships/commanders from localStorage without touching the active fleet/battle state.
+// Needed because the Developer page may have added/edited ships in a different tab while
+// this page stayed open — without this, the in-memory `ships` array goes stale.
+function refreshShipsAndCommanders(){
+  try{ships=JSON.parse(localStorage.getItem('bfg_ships')||'[]');}catch(e){}
+  try{commanders=JSON.parse(localStorage.getItem('bfg_commanders')||'[]');}catch(e){}
+}
 function saveEnabledPackages(){localStorage.setItem('bfg_enabled_packages',JSON.stringify(enabledPackages));}
 function saveFleets(){localStorage.setItem('bfg_fleets',JSON.stringify(fleets));localStorage.setItem('bfg_active',activeFleetId);}
 function saveBattle(){localStorage.setItem('bfg_battle',JSON.stringify(battleState));}
@@ -359,8 +366,23 @@ get('fleet-name-inp').addEventListener('input',function(){activeFleet().name=thi
   get('nb-'+p).addEventListener('click',function(){
     ['fleet','battle'].forEach(function(x){get('nb-'+x).classList.remove('active');get('page-'+x).classList.remove('active');});
     get('nb-'+p).classList.add('active');get('page-'+p).classList.add('active');
+    refreshShipsAndCommanders();
     if(p==='battle') renderBattle();
+    else{renderTabs();renderFleet();updatePtsBar();if(get('edit-toggle').checked){renderPackageToggles();renderAvailShips();renderAvailCmds();}}
   });
+});
+
+// Refresh ships/commanders whenever the tab regains focus — covers switching back
+// from a Developer tab where ships may have been added/edited in the meantime.
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState!=='visible') return;
+  refreshShipsAndCommanders();
+  if(get('page-battle').classList.contains('active')){
+    renderBattle();
+  } else {
+    renderTabs();renderFleet();updatePtsBar();
+    if(get('edit-toggle').checked){renderPackageToggles();renderAvailShips();renderAvailCmds();}
+  }
 });
 
 // ---- FLEET TABS ----
@@ -393,7 +415,7 @@ get('btn-copy-code').addEventListener('click',function(){var code=encodeFleet(ac
 get('btn-import-code').addEventListener('click',function(){var code=get('import-code').value.trim();var st=get('import-fleet-status');if(!code){st.textContent='⚠️ Írj be egy kódot!';return;}var dec=decodeFleet(code);if(!dec){st.textContent='❌ Hibás kód!';return;}var vf=dec.fleet.filter(function(e){return ships.find(function(s){return s.id===e.shipId;});});var vc=dec.commanders.filter(function(cid){return commanders.find(function(c){return c.id===cid;});});var miss=dec.fleet.length-vf.length;var id=gid();fleets.push({id:id,name:dec.name,pointsLimit:dec.pointsLimit,fleet:vf,commanders:vc});activeFleetId=id;saveFleets();get('import-code').value='';st.textContent=miss>0?'✅ Betöltve! ('+miss+' hajó hiányzik)':'✅ Betöltve!';renderTabs();renderFleet();updatePtsBar();});
 
 // ---- EDIT MODE ----
-get('edit-toggle').addEventListener('change',function(){var on=this.checked;get('fleet-container').classList.toggle('edit-on',on);get('cmd-container').classList.toggle('edit-on',on);get('avail-section').style.display=on?'block':'none';get('avail-cmd-section').style.display=on?'block':'none';get('package-toggle-wrap').style.display=on?'block':'none';if(on){renderPackageToggles();renderAvailShips();renderAvailCmds();}renderFleet();});
+get('edit-toggle').addEventListener('change',function(){var on=this.checked;get('fleet-container').classList.toggle('edit-on',on);get('cmd-container').classList.toggle('edit-on',on);get('avail-section').style.display=on?'block':'none';get('avail-cmd-section').style.display=on?'block':'none';get('package-toggle-wrap').style.display=on?'block':'none';if(on){refreshShipsAndCommanders();renderPackageToggles();renderAvailShips();renderAvailCmds();}renderFleet();});
 
 function renderPackageToggles(){
   var wrap=get('package-toggle-wrap');
