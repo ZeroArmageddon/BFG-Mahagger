@@ -81,6 +81,7 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
   <div class="nav-links">
     <a class="nb" href="BFG_App.html">⚓ Fleet Builder</a>
     <a class="nb active" href="BFG_Dev.html">🔧 Developer</a>
+    <a class="nb" href="BFG_Rulebook.html">📖 Rulebook</a>
   </div>
 </nav>
 <div class="toast" id="toast"></div>
@@ -93,13 +94,19 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
     <div class="status" id="load-status">⏳ Adatok keresése...</div>
     <p style="color:var(--dim);font-size:.78rem;margin-bottom:.65rem;">
       <b style="color:var(--gold);">Helyi:</b> localStorage-ban maradnak. Exportáld → töltsd fel a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/ships/</code> és <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/commanders/</code> mappákba.<br>
-      <b style="color:var(--gold);">GitHub Pages:</b> <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/manifest.json</code> alapján tölt be.
+      <b style="color:var(--gold);">GitHub Pages:</b> <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/manifest.json</code> alapján tölt be.<br>
+      <b style="color:var(--orange);">Unofficial hajók:</b> külön mappa/manifest: <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/unofficial_ships/unofficial_manifest.json</code>
     </p>
     <div class="brow" style="margin-bottom:.45rem;">
-      <b style="color:var(--gold);font-size:.8rem;align-self:center;">📤 Export:</b>
+      <b style="color:var(--gold);font-size:.8rem;align-self:center;">📤 Hivatalos Export:</b>
       <button class="btn bgh bsm" id="btn-exp-ships">⬇️ Hajók .txt</button>
       <button class="btn bgh bsm" id="btn-exp-cmds" style="border-color:var(--pdim);">⬇️ Commanderek .txt</button>
       <button class="btn bgr bsm" id="btn-exp-manifest">⬇️ manifest.json</button>
+    </div>
+    <div class="brow" style="margin-bottom:.45rem;">
+      <b style="color:var(--orange);font-size:.8rem;align-self:center;">🧩 Unofficial Export:</b>
+      <button class="btn bgh bsm" id="btn-exp-unofficial" style="border-color:var(--orange);">⬇️ Unofficial hajók .txt</button>
+      <button class="btn bgh bsm" id="btn-exp-unofficial-manifest" style="border-color:var(--orange);">⬇️ unofficial_manifest.json</button>
     </div>
     <div class="brow">
       <b style="color:var(--gold);font-size:.8rem;align-self:center;">📥 Import:</b>
@@ -131,6 +138,15 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
       <input type="text" id="ship-img-url" placeholder="https://...">
       <input type="file" id="ship-img-file" accept="image/*" style="margin-top:.32rem;">
       <img id="ship-img-prev" style="width:100%;max-height:170px;object-fit:contain;margin-top:.32rem;border-radius:4px;display:none;border:1px solid #333;">
+    </div>
+
+    <!-- UNOFFICIAL / COMMUNITY -->
+    <hr class="divider" style="border-top-color:var(--orange);">
+    <button type="button" class="loc-check" id="ship-unofficial-toggle" style="border-color:var(--orange);">☐ Unofficial (Community Made)</button>
+    <div class="fg" id="ship-package-wrap" style="display:none;margin-top:.5rem;">
+      <label>Csomag neve *</label>
+      <input type="text" id="ship-package" placeholder="pl. Chaos Expansion Pack v2, Rogue Traders Fleet Pack">
+      <p style="color:var(--dim);font-size:.74rem;margin-top:.25rem;">Az azonos csomagnevű hajók egy csoportba kerülnek a Fleet Builderben.</p>
     </div>
 
     <!-- WEAPONS -->
@@ -191,6 +207,7 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
       <select id="dev-faction-filter"><option value="">Minden frakció</option></select>
       <select id="dev-subfaction-filter"><option value="">Minden al-frakció</option></select>
       <select id="dev-type-filter"><option value="">Minden típus</option></select>
+      <select id="dev-package-filter"><option value="">Minden csomag</option></select>
     </div>
     <div class="grid" id="dev-ship-list"></div>
   </div>
@@ -229,11 +246,17 @@ function toast(msg, col) { var el=get('toast'); el.textContent=msg; el.style.bor
 
 function expShip(ship) { var d=Object.assign({},ship); delete d._type; dl(JSON.stringify(d,null,2),fname(ship.name)+'.txt'); }
 function expCmd(cmd)   { dl(JSON.stringify(Object.assign({},cmd,{_type:'commander'}),null,2),fname(cmd.name)+'.txt'); }
-function expManifest() { dl(JSON.stringify({ships:ships.map(function(s){return fname(s.name);}),commanders:commanders.map(function(c){return fname(c.name);})},null,2),'manifest.json'); }
+function expManifest() { dl(JSON.stringify({ships:ships.filter(function(s){return !s.unofficial;}).map(function(s){return fname(s.name);}),commanders:commanders.map(function(c){return fname(c.name);})},null,2),'manifest.json'); }
+function expUnofficialManifest() { dl(JSON.stringify({ships:ships.filter(function(s){return s.unofficial;}).map(function(s){return fname(s.name);})},null,2),'unofficial_manifest.json'); }
 
-get('btn-exp-ships').addEventListener('click',function(){ if(!ships.length){toast('Nincs hajó.','var(--dim)');return;} ships.forEach(expShip); toast('✅ '+ships.length+' hajó .txt letöltve','var(--green)'); });
+get('btn-exp-ships').addEventListener('click',function(){ var off=ships.filter(function(s){return !s.unofficial;}); if(!off.length){toast('Nincs hivatalos hajó.','var(--dim)');return;} off.forEach(expShip); toast('✅ '+off.length+' hivatalos hajó .txt letöltve — data/ships/ mappába','var(--green)'); });
 get('btn-exp-cmds').addEventListener('click',function(){ if(!commanders.length){toast('Nincs commander.','var(--dim)');return;} commanders.forEach(expCmd); toast('✅ '+commanders.length+' commander .txt letöltve','var(--green)'); });
 get('btn-exp-manifest').addEventListener('click',function(){ expManifest(); toast('✅ manifest.json letöltve','var(--green)'); });
+var btnExpUnofficial=get('btn-exp-unofficial');
+if(btnExpUnofficial) btnExpUnofficial.addEventListener('click',function(){ var un=ships.filter(function(s){return s.unofficial;}); if(!un.length){toast('Nincs unofficial hajó.','var(--dim)');return;} un.forEach(expShip); toast('✅ '+un.length+' unofficial hajó .txt letöltve — data/unofficial_ships/ mappába','var(--orange)'); });
+var btnExpUnofficialManifest=get('btn-exp-unofficial-manifest');
+if(btnExpUnofficialManifest) btnExpUnofficialManifest.addEventListener('click',function(){ expUnofficialManifest(); toast('✅ unofficial_manifest.json letöltve','var(--orange)'); });
+
 get('btn-reload').addEventListener('click',function(){ if(IS_LOCAL){toast('Helyi módban nem elérhető.','var(--orange)');return;} autoLoad(); });
 get('import-files').addEventListener('change',function(){
   var files=this.files; if(!files.length) return;
@@ -251,15 +274,24 @@ async function autoLoad() {
   function set(bg,col,txt){el.style.background=bg;el.style.color=col;el.textContent=txt;}
   if(IS_LOCAL){set('#1a1a0a','var(--orange)','📂 Helyi mód — localStorage. Importálj .txt fájlokat, vagy hozz létre újakat.');return;}
   set('var(--inp)','var(--dim)','⏳ Betöltés GitHub-ról...');
+  var s=0,c=0,u=0,fail=[];
   try{
     var mRes=await fetch('./data/manifest.json?_='+Date.now()); if(!mRes.ok) throw new Error('HTTP '+mRes.status);
-    var manifest=await mRes.json(); var s=0,c=0,fail=[];
+    var manifest=await mRes.json();
     for(var i=0;i<(manifest.ships||[]).length;i++){var n=manifest.ships[i];try{var r=await fetch('./data/ships/'+n+'.txt?_='+Date.now());if(!r.ok)throw 0;var obj=JSON.parse(await r.text());ships=ships.filter(function(x){return x.id!==obj.id;});ships.push(obj);s++;}catch(e2){fail.push(n);}}
     for(var j=0;j<(manifest.commanders||[]).length;j++){var m=manifest.commanders[j];try{var r2=await fetch('./data/commanders/'+m+'.txt?_='+Date.now());if(!r2.ok)throw 0;var obj2=JSON.parse(await r2.text());commanders=commanders.filter(function(x){return x.id!==obj2.id;});commanders.push(obj2);c++;}catch(e3){fail.push(m);}}
-    saveShips(); renderDevShips(); renderDevCmds();
-    if(fail.length) set('#2b2a0d','#c8b840','⚠️ '+s+' hajó, '+c+' commander betöltve. Hiba: '+fail.join(', '));
-    else set('#0d2b1a','var(--green)','✅ '+s+' hajó, '+c+' commander betöltve GitHub-ról.');
-  }catch(e4){set('#2b2a0d','#c8b840',ships.length?'⚠️ manifest.json nem található. '+ships.length+' hajó localStorage-ból.':'⚠️ manifest.json nem található.');}
+  }catch(eMain){ fail.push('manifest.json'); }
+  // unofficial ships — separate folder & manifest
+  try{
+    var uRes=await fetch('./data/unofficial_ships/unofficial_manifest.json?_='+Date.now());
+    if(uRes.ok){
+      var uManifest=await uRes.json();
+      for(var k=0;k<(uManifest.ships||[]).length;k++){var un=uManifest.ships[k];try{var r3=await fetch('./data/unofficial_ships/'+un+'.txt?_='+Date.now());if(!r3.ok)throw 0;var obj3=JSON.parse(await r3.text());obj3.unofficial=true;ships=ships.filter(function(x){return x.id!==obj3.id;});ships.push(obj3);u++;}catch(e4){fail.push(un);}}
+    }
+  }catch(eUn){ /* unofficial manifest optional — no error shown if missing */ }
+  saveShips(); renderDevShips(); renderDevCmds();
+  if(fail.length) set('#2b2a0d','#c8b840','⚠️ '+s+' hivatalos, '+u+' unofficial hajó, '+c+' commander betöltve. Hiba: '+fail.join(', '));
+  else set('#0d2b1a','var(--green)','✅ '+s+' hivatalos hajó'+(u?', '+u+' unofficial hajó':'')+', '+c+' commander betöltve GitHub-ról.');
 }
 
 // IMAGE PREVIEW
@@ -310,11 +342,28 @@ get('btn-add-weapon').addEventListener('click',function(){ curWeapons.push({id:g
 // WARGEAR EDITOR
 // ============================================================
 function makeWgHtml(wg, i) {
-  return '<div class="wge2"><div class="wge2-hdr"><span class="wge2-nm">⚙️ '+esc(wg.name||'Névtelen')+'</span><button class="btn bd bsm" data-wi="'+i+'">Törlés</button></div>'
+  var hpBonus = wg.hitsBonus||0;
+  var grants = !!wg.grantsWeapon;
+  var w = wg.weapon || {name:'',range:'',fp:'',arc:'',locations:[]};
+  var locChecks = LOCS.map(function(loc){
+    var checked=(w.locations||[]).indexOf(loc)>=0;
+    return '<button type="button" class="loc-check wg-loc'+(checked?' checked':'')+'" data-i="'+i+'" data-loc="'+loc+'">'+loc+'</button>';
+  }).join('');
+  return '<div class="wge2"><div class="wge2-hdr"><span class="wge2-nm">⚙️ '+esc(wg.name||'Névtelen')+(hpBonus?' <span style="color:var(--green);font-size:.7rem;">+'+hpBonus+'HP</span>':'')+(grants?' <span style="color:var(--orange);font-size:.7rem;">+fegyver</span>':'')+'</span><button class="btn bd bsm" data-wi="'+i+'">Törlés</button></div>'
     +'<div class="frow"><div class="fg" style="flex:2;"><label>Wargear neve</label><input type="text" class="wg-name" data-i="'+i+'" value="'+esc(wg.name||'')+'"></div>'
     +'<div class="fg" style="flex:1;"><label>Pts</label><input type="number" class="wg-pts" data-i="'+i+'" value="'+(wg.pts||0)+'" min="0"></div>'
     +'<div class="fg" style="flex:1;"><label>Max</label><input type="number" class="wg-max" data-i="'+i+'" value="'+(wg.max||1)+'" min="1"></div></div>'
-    +'<div class="fg"><label>Leírás</label><textarea class="wg-desc" data-i="'+i+'" rows="2">'+esc(wg.desc||'')+'</textarea></div></div>';
+    +'<div class="fg"><label>Leírás</label><textarea class="wg-desc" data-i="'+i+'" rows="2">'+esc(wg.desc||'')+'</textarea></div>'
+    +'<div class="fg"><label>Extra HP (pl. +2 hit)</label><input type="number" class="wg-hp" data-i="'+i+'" value="'+hpBonus+'" min="0" step="1"></div>'
+    +'<button type="button" class="loc-check wg-grant-toggle'+(grants?' checked':'')+'" data-i="'+i+'">'+(grants?'✅ Fegyvert ad':'☐ Fegyvert ad')+'</button>'
+    +(grants?'<div style="margin-top:.4rem;padding-top:.4rem;border-top:1px solid #2a2a3a;">'
+      +'<div class="frow"><div class="fg" style="flex:2;"><label>Fegyver neve</label><input type="text" class="wg-wpn-name" data-i="'+i+'" value="'+esc(w.name||'')+'"></div>'
+      +'<div class="fg" style="flex:1;"><label>Range</label><input type="text" class="wg-wpn-range" data-i="'+i+'" value="'+esc(w.range||'')+'"></div></div>'
+      +'<div class="frow"><div class="fg" style="flex:1;"><label>FP/Str</label><input type="text" class="wg-wpn-fp" data-i="'+i+'" value="'+esc(w.fp||'')+'"></div>'
+      +'<div class="fg" style="flex:1;"><label>Arc</label><input type="text" class="wg-wpn-arc" data-i="'+i+'" value="'+esc(w.arc||'')+'"></div></div>'
+      +'<div class="fg"><label>Elhelyezkedés</label><div class="loc-checks">'+locChecks+'</div></div>'
+      +'</div>':'')
+    +'</div>';
 }
 function bindWgEvents(el, arr) {
   el.querySelectorAll('[data-wi]').forEach(function(btn){ btn.addEventListener('click',function(){ arr.splice(+btn.dataset.wi,1); renderWgInto(el,arr); }); });
@@ -322,6 +371,13 @@ function bindWgEvents(el, arr) {
   el.querySelectorAll('.wg-pts').forEach(function(inp){ inp.addEventListener('change',function(){ arr[+inp.dataset.i].pts=parseInt(inp.value)||0; }); });
   el.querySelectorAll('.wg-max').forEach(function(inp){ inp.addEventListener('change',function(){ arr[+inp.dataset.i].max=parseInt(inp.value)||1; }); });
   el.querySelectorAll('.wg-desc').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].desc=inp.value; }); });
+  el.querySelectorAll('.wg-hp').forEach(function(inp){ inp.addEventListener('change',function(){ arr[+inp.dataset.i].hitsBonus=parseInt(inp.value)||0; renderWgInto(el,arr); }); });
+  el.querySelectorAll('.wg-grant-toggle').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i; arr[i].grantsWeapon=!arr[i].grantsWeapon; if(arr[i].grantsWeapon&&!arr[i].weapon) arr[i].weapon={name:'',range:'',fp:'',arc:'',locations:[]}; renderWgInto(el,arr); }); });
+  el.querySelectorAll('.wg-wpn-name').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].weapon.name=inp.value; }); });
+  el.querySelectorAll('.wg-wpn-range').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].weapon.range=inp.value; }); });
+  el.querySelectorAll('.wg-wpn-fp').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].weapon.fp=inp.value; }); });
+  el.querySelectorAll('.wg-wpn-arc').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].weapon.arc=inp.value; }); });
+  el.querySelectorAll('.wg-loc').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i,loc=btn.dataset.loc,w=arr[i].weapon; if(!w.locations) w.locations=[]; var idx=w.locations.indexOf(loc); if(idx>=0) w.locations.splice(idx,1); else w.locations.push(loc); btn.classList.toggle('checked',w.locations.indexOf(loc)>=0); }); });
 }
 function renderWgInto(el, arr) {
   if(!arr.length){ el.innerHTML='<div style="color:var(--dim);font-size:.8rem;padding:.28rem 0;">Még nincs wargear.</div>'; return; }
@@ -382,12 +438,22 @@ get('btn-add-variant').addEventListener('click',function(){ curVariants.push({id
 // ============================================================
 // SHIP FORM
 // ============================================================
+var curUnofficial=false;
+get('ship-unofficial-toggle').addEventListener('click',function(){
+  curUnofficial=!curUnofficial;
+  this.classList.toggle('checked',curUnofficial);
+  this.textContent=curUnofficial?'✅ Unofficial (Community Made)':'☐ Unofficial (Community Made)';
+  get('ship-package-wrap').style.display=curUnofficial?'block':'none';
+});
 function clearShipForm() {
   get('edit-ship-id').value='';
-  ['ship-name','ship-type','ship-faction','ship-subfaction','ship-points','ship-stats','ship-img-url'].forEach(function(id){get(id).value='';});
+  ['ship-name','ship-type','ship-faction','ship-subfaction','ship-points','ship-stats','ship-img-url','ship-package'].forEach(function(id){get(id).value='';});
   get('ship-hits').value='8'; get('ship-img-file').value=''; get('ship-img-prev').style.display='none';
   get('ship-form-title').textContent='➕ Új Hajó'; get('btn-save-ship').textContent='💾 Mentés'; get('btn-cancel-ship').style.display='none';
-  curWeapons=[]; curWg=[]; curVariants=[]; renderWeapons(); renderWg(); renderVariants();
+  curWeapons=[]; curWg=[]; curVariants=[]; curUnofficial=false;
+  var ut=get('ship-unofficial-toggle'); ut.classList.remove('checked'); ut.textContent='☐ Unofficial (Community Made)';
+  get('ship-package-wrap').style.display='none';
+  renderWeapons(); renderWg(); renderVariants();
 }
 function startEditShip(id) {
   var s=ships.find(function(x){return x.id===id;}); if(!s) return;
@@ -397,6 +463,12 @@ function startEditShip(id) {
   get('ship-img-url').value=s.image||''; var p=get('ship-img-prev'); p.src=s.image||''; p.style.display=s.image?'block':'none';
   curWeapons=JSON.parse(JSON.stringify(s.weapons||[])); curWg=JSON.parse(JSON.stringify(s.wargear||[]));
   curVariants=JSON.parse(JSON.stringify(s.variants||[]));
+  curUnofficial=!!s.unofficial;
+  var ut=get('ship-unofficial-toggle');
+  ut.classList.toggle('checked',curUnofficial);
+  ut.textContent=curUnofficial?'✅ Unofficial (Community Made)':'☐ Unofficial (Community Made)';
+  get('ship-package-wrap').style.display=curUnofficial?'block':'none';
+  get('ship-package').value=s.packageName||'';
   renderWeapons(); renderWg(); renderVariants();
   get('ship-form-title').textContent='✏️ '+s.name; get('btn-save-ship').textContent='💾 Mentés'; get('btn-cancel-ship').style.display='inline-flex';
   get('ship-form-sec').scrollIntoView({behavior:'smooth'});
@@ -405,10 +477,11 @@ get('btn-cancel-ship').addEventListener('click',clearShipForm);
 get('btn-save-ship').addEventListener('click',function(){
   var name=get('ship-name').value.trim(), faction=get('ship-faction').value.trim(), points=parseInt(get('ship-points').value);
   if(!name||!faction||isNaN(points)){toast('❌ Töltsd ki: Név, Frakció, Pontérték','var(--red)');return;}
-  var obj={name:name,type:get('ship-type').value.trim(),faction:faction,subfaction:get('ship-subfaction').value.trim(),points:points,hits:parseInt(get('ship-hits').value)||8,stats:get('ship-stats').value,image:get('ship-img-url').value,weapons:JSON.parse(JSON.stringify(curWeapons)),wargear:JSON.parse(JSON.stringify(curWg)),variants:JSON.parse(JSON.stringify(curVariants))};
+  if(curUnofficial&&!get('ship-package').value.trim()){toast('❌ Add meg a csomag nevét (Unofficial hajónál kötelező)','var(--red)');return;}
+  var obj={name:name,type:get('ship-type').value.trim(),faction:faction,subfaction:get('ship-subfaction').value.trim(),points:points,hits:parseInt(get('ship-hits').value)||8,stats:get('ship-stats').value,image:get('ship-img-url').value,weapons:JSON.parse(JSON.stringify(curWeapons)),wargear:JSON.parse(JSON.stringify(curWg)),variants:JSON.parse(JSON.stringify(curVariants)),unofficial:curUnofficial,packageName:curUnofficial?get('ship-package').value.trim():''};
   var eid=get('edit-ship-id').value;
   if(eid){ var idx=ships.findIndex(function(x){return x.id===eid;}); if(idx!==-1){ships[idx]=Object.assign(ships[idx],obj);saveShips();expShip(ships[idx]);clearShipForm();renderDevShips();toast('✅ "'+name+'" frissítve, .txt letöltve','var(--green)');} }
-  else{ var ship=Object.assign({id:gid()},obj);ships.push(ship);saveShips();expShip(ship);expManifest();clearShipForm();renderDevShips();toast('✅ "'+name+'" mentve, .txt + manifest.json letöltve','var(--green)'); }
+  else{ var ship=Object.assign({id:gid()},obj);ships.push(ship);saveShips();expShip(ship);if(ship.unofficial){expUnofficialManifest();}else{expManifest();}clearShipForm();renderDevShips();toast('✅ "'+name+'" mentve, .txt + '+(ship.unofficial?'unofficial_manifest.json':'manifest.json')+' letöltve','var(--green)'); }
 });
 
 // ============================================================
@@ -442,11 +515,12 @@ function getUniq(arr, key) { var r=[]; arr.forEach(function(x){ var v=x[key]||''
 function fillSelect(id, vals, cur) { var el=get(id); el.innerHTML='<option value="">'+el.options[0].text+'</option>'+vals.map(function(v){return '<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(v)+'</option>';}).join(''); el.value=cur||''; }
 
 function renderDevShips() {
-  var ff=get('dev-faction-filter').value, fsf=get('dev-subfaction-filter').value, ft=get('dev-type-filter').value;
+  var ff=get('dev-faction-filter').value, fsf=get('dev-subfaction-filter').value, ft=get('dev-type-filter').value, fpk=get('dev-package-filter').value;
   fillSelect('dev-faction-filter',    getUniq(ships,'faction'),    ff);
   fillSelect('dev-subfaction-filter', getUniq(ships,'subfaction'), fsf);
   fillSelect('dev-type-filter',       getUniq(ships,'type'),       ft);
-  var list=ships.filter(function(s){ return(!ff||s.faction===ff)&&(!fsf||s.subfaction===fsf)&&(!ft||s.type===ft); });
+  fillSelect('dev-package-filter',    getUniq(ships,'packageName'),fpk);
+  var list=ships.filter(function(s){ return(!ff||s.faction===ff)&&(!fsf||s.subfaction===fsf)&&(!ft||s.type===ft)&&(!fpk||s.packageName===fpk); });
   var el=get('dev-ship-list');
   if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>Nincs hajó.</p></div>';return;}
   el.innerHTML=list.map(function(s){
@@ -454,13 +528,14 @@ function renderDevShips() {
     if(s.type) tags+='<span style="background:#1a2a1a;color:var(--green);padding:.1rem .3rem;border-radius:3px;font-size:.68rem;margin-right:.25rem;">'+esc(s.type)+'</span>';
     if(s.subfaction) tags+='<span style="background:#1a1a2a;color:#7a9aee;padding:.1rem .3rem;border-radius:3px;font-size:.68rem;">'+esc(s.subfaction)+'</span>';
     var varBadge=s.variants&&s.variants.length?'<div style="font-size:.7rem;color:#4ad9c9;">🔀 '+s.variants.length+' variáció</div>':'';
-    return '<div class="sc">'+(s.image?'<img src="'+esc(s.image)+'" alt="">':'<div class="sc-img"></div>')
+    var unoffBadge=s.unofficial?'<div style="font-size:.7rem;color:var(--orange);margin-top:.15rem;">🧩 Unofficial · '+esc(s.packageName||'')+'</div>':'';
+    return '<div class="sc"'+(s.unofficial?' style="border-color:var(--orange);"':'')+'>'+(s.image?'<img src="'+esc(s.image)+'" alt="">':'<div class="sc-img"></div>')
       +'<div class="sc-body"><div class="sc-hdr"><span class="sc-name">'+esc(s.name)+'</span><span class="badge bg-b">'+s.points+' pts</span></div>'
       +(tags?'<div style="margin-bottom:.25rem;">'+tags+'</div>':'')
       +'<div class="sc-sub">'+esc(s.faction||'')+(s.subfaction?' · '+esc(s.subfaction):'')+'</div>'
       +(s.weapons&&s.weapons.length?'<div style="font-size:.7rem;color:var(--dim);">🔫 '+s.weapons.length+' fegyver</div>':'')
       +(s.wargear&&s.wargear.length?'<div style="font-size:.7rem;color:var(--dim);">⚙️ '+s.wargear.length+' wargear</div>':'')
-      +varBadge
+      +varBadge+unoffBadge
       +'<div class="sc-acts" style="flex-direction:column;gap:.27rem;margin-top:.5rem;"><div style="display:flex;gap:.27rem;">'
       +'<button class="btn bw bsm dev-edit-ship" data-sid="'+s.id+'" style="flex:1;">✏️ Edit</button>'
       +'<button class="btn bd bsm dev-del-ship" data-sid="'+s.id+'" style="flex:1;">🗑️</button></div>'
@@ -468,12 +543,13 @@ function renderDevShips() {
       +'</div></div></div>';
   }).join('');
   el.querySelectorAll('.dev-edit-ship').forEach(function(btn){btn.addEventListener('click',function(){startEditShip(btn.dataset.sid);});});
-  el.querySelectorAll('.dev-del-ship').forEach(function(btn){btn.addEventListener('click',function(){ if(!confirm('Törlöd?')) return; ships=ships.filter(function(s){return s.id!==btn.dataset.sid;}); fleets.forEach(function(f){f.fleet=f.fleet.filter(function(e){return e.shipId!==btn.dataset.sid;});}); localStorage.setItem('bfg_fleets',JSON.stringify(fleets)); saveShips(); expManifest(); renderDevShips(); toast('🗑️ Hajó törölve','#c8b840'); });});
+  el.querySelectorAll('.dev-del-ship').forEach(function(btn){btn.addEventListener('click',function(){ if(!confirm('Törlöd?')) return; var delShip=ships.find(function(x){return x.id===btn.dataset.sid;}); ships=ships.filter(function(s){return s.id!==btn.dataset.sid;}); fleets.forEach(function(f){f.fleet=f.fleet.filter(function(e){return e.shipId!==btn.dataset.sid;});}); localStorage.setItem('bfg_fleets',JSON.stringify(fleets)); saveShips(); if(delShip&&delShip.unofficial){expUnofficialManifest();}else{expManifest();} renderDevShips(); toast('🗑️ Hajó törölve','#c8b840'); });});
   el.querySelectorAll('.dev-dl-ship').forEach(function(btn){btn.addEventListener('click',function(){var s=ships.find(function(x){return x.id===btn.dataset.sid;}); if(s) expShip(s);});});
 }
 get('dev-faction-filter').addEventListener('change',renderDevShips);
 get('dev-subfaction-filter').addEventListener('change',renderDevShips);
 get('dev-type-filter').addEventListener('change',renderDevShips);
+get('dev-package-filter').addEventListener('change',renderDevShips);
 
 function renderDevCmds() {
   var ff=get('dev-cmd-faction-filter').value;

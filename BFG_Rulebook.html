@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BFG — Rulebook</title>
+<style>
+:root{--bg:#0a0a0f;--card:#12121a;--inp:#1a1a25;--gold:#c9a227;--gdim:#8a7019;--txt:#e0e0e0;--dim:#888;--red:#d94a4a;--green:#4ad97a;--purple:#7a4ad9;--pdim:#5a35a0;--orange:#d97a1a;--teal:#1a9a8a;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.5;}
+nav{display:flex;align-items:center;background:var(--card);border-bottom:2px solid var(--gdim);position:sticky;top:0;z-index:200;height:52px;}
+.logo{padding:0 1rem;color:var(--gold);font-weight:bold;font-size:.95rem;border-right:1px solid var(--gdim);height:100%;display:flex;align-items:center;white-space:nowrap;}
+.nav-links{display:flex;height:100%;}
+.nb{display:flex;align-items:center;padding:0 .9rem;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--dim);font-size:.88rem;cursor:pointer;height:100%;white-space:nowrap;text-decoration:none;transition:all .15s;}
+.nb:hover{color:var(--txt);}.nb.active{color:var(--gold);border-bottom-color:var(--gold);background:var(--inp);}
+.wrap{max-width:900px;margin:0 auto;padding:1rem;}
+.card{background:var(--card);border:1px solid var(--gdim);border-radius:8px;padding:1.1rem;margin-bottom:1rem;}
+.card h2{color:var(--gold);margin-bottom:.75rem;font-size:1.02rem;}
+.card.teal{border-color:var(--teal);}.card.teal h2{color:#4ad9c9;}
+.fg{margin-bottom:.72rem;}.fg label{display:block;margin-bottom:.25rem;color:var(--dim);font-size:.77rem;}
+.fg input,.fg textarea,.fg select{width:100%;padding:.55rem .65rem;background:var(--inp);border:1px solid #333;color:var(--txt);border-radius:4px;font-size:.87rem;}
+.fg textarea{min-height:120px;resize:vertical;font-family:inherit;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--gold);}
+.frow{display:flex;gap:.52rem;flex-wrap:wrap;}.frow .fg{flex:1;min-width:88px;}
+.btn{padding:.5rem .9rem;border:none;border-radius:4px;cursor:pointer;font-size:.84rem;transition:all .15s;display:inline-flex;align-items:center;gap:.22rem;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.bg{background:var(--gold);color:#0a0a0f;font-weight:bold;}.bg:hover:not(:disabled){background:var(--gdim);}
+.bd{background:var(--red);color:#fff;}.bd:hover:not(:disabled){background:#b83a3a;}
+.bgh{background:var(--inp);color:var(--txt);border:1px solid var(--gdim);}.bgh:hover:not(:disabled){border-color:var(--gold);}
+.bt{background:var(--teal);color:#fff;}.bt:hover:not(:disabled){background:#147a6d;}
+.bgr{background:var(--green);color:#0a0a0f;font-weight:bold;}.bgr:hover:not(:disabled){background:#35b560;}
+.bsm{padding:.25rem .5rem;font-size:.74rem;}
+.brow{display:flex;gap:.42rem;flex-wrap:wrap;}
+.filter-bar{display:flex;gap:.34rem;margin-bottom:.58rem;flex-wrap:wrap;}
+.filter-bar select,.filter-bar input{padding:.4rem .55rem;background:var(--inp);border:1px solid #333;color:var(--txt);border-radius:4px;font-size:.83rem;}
+.filter-bar input{flex:1;min-width:150px;}
+.entry{background:var(--card);border:1px solid var(--gdim);border-radius:7px;margin-bottom:.55rem;overflow:hidden;}
+.entry.match{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal);}
+.entry-head{display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;cursor:pointer;transition:background .15s;}
+.entry-head:hover{background:var(--inp);}
+.entry-title{font-weight:bold;color:var(--gold);font-size:.92rem;flex:1;}
+.entry-cat{background:var(--inp);color:#7a9aee;padding:.12rem .4rem;border-radius:3px;font-size:.7rem;border:1px solid #2a2a3a;}
+.entry-arrow{color:var(--dim);font-size:.8rem;}
+.entry-body{padding:0 .85rem .85rem .85rem;display:none;}
+.entry-body.open{display:block;}
+.entry-content{color:var(--txt);font-size:.86rem;white-space:pre-wrap;line-height:1.65;background:var(--inp);padding:.7rem .8rem;border-radius:5px;}
+.entry-acts{display:flex;gap:.35rem;margin-top:.55rem;}
+.status{font-size:.8rem;padding:.36rem .58rem;border-radius:4px;background:var(--inp);margin-bottom:.72rem;}
+.toast{position:fixed;bottom:1.1rem;right:1.1rem;padding:.55rem .95rem;border-radius:6px;font-size:.83rem;font-weight:bold;background:var(--card);border:1px solid var(--gdim);color:var(--txt);z-index:999;display:none;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+.toast.show{display:block;}
+.empty{text-align:center;padding:1.8rem 1rem;color:var(--dim);}.empty-icon{font-size:1.75rem;margin-bottom:.42rem;}
+.notice{background:#1a1a0a;border:1px solid #b87a1a;color:#e8a040;padding:.55rem .8rem;border-radius:5px;font-size:.83rem;margin-bottom:.8rem;}
+.data-tools{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.8rem;}
+@media(max-width:600px){.frow{flex-direction:column;}.logo{display:none;}.nb{padding:0 .55rem;font-size:.78rem;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">⚓ BFG</div>
+  <div class="nav-links">
+    <a class="nb" href="BFG_App.html">⚓ Fleet Builder</a>
+    <a class="nb" href="BFG_Dev.html">🔧 Developer</a>
+    <a class="nb active" href="BFG_Rulebook.html">📖 Rulebook</a>
+  </div>
+</nav>
+<div class="toast" id="toast"></div>
+
+<div class="wrap">
+
+  <div id="notice-area"></div>
+
+  <!-- DATA TOOLS -->
+  <div class="card teal">
+    <h2>📁 Rulebook Adatkezelés</h2>
+    <div class="status" id="load-status">⏳ Adatok keresése...</div>
+    <p style="color:var(--dim);font-size:.78rem;margin-bottom:.65rem;">
+      <b style="color:#4ad9c9;">Helyi:</b> localStorage-ban maradnak. Exportáld → töltsd fel a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/rulebook/</code> mappába.<br>
+      <b style="color:#4ad9c9;">GitHub Pages:</b> <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/rulebook/rulebook_manifest.json</code> alapján tölt be (külön a hajó/commander manifest.json-tól).
+    </p>
+    <div class="data-tools">
+      <button class="btn bgh bsm" id="btn-exp-all">⬇️ Összes szócikk .txt</button>
+      <button class="btn bgr bsm" id="btn-exp-manifest">⬇️ rulebook_manifest.json</button>
+      <label class="btn bgh bsm" style="cursor:pointer;">📂 .txt fájlok<input type="file" id="import-files" accept=".txt,.json" multiple style="display:none;"></label>
+      <button class="btn bgh bsm" id="btn-reload">🔄 GitHub újratöltés</button>
+    </div>
+    <div id="import-status" style="font-size:.78rem;color:var(--dim);min-height:1em;"></div>
+  </div>
+
+  <!-- ADD/EDIT ENTRY -->
+  <div class="card">
+    <h2 id="entry-form-title">➕ Új Szócikk</h2>
+    <input type="hidden" id="edit-entry-id">
+    <div class="frow">
+      <div class="fg" style="flex:2;"><label>Cím * (pl. "Weapons Battery")</label><input type="text" id="entry-title"></div>
+      <div class="fg"><label>Kategória</label><input type="text" id="entry-cat" placeholder="pl. Fegyverek, Manőverek, Kritikus"></div>
+    </div>
+    <div class="fg"><label>Tartalom *</label><textarea id="entry-content" placeholder="A szabály teljes leírása..."></textarea></div>
+    <div class="brow">
+      <button class="btn bg" id="btn-save-entry">💾 Mentés</button>
+      <button class="btn bgh" id="btn-cancel-entry" style="display:none;">Mégse</button>
+    </div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="card">
+    <h2>📖 Szócikkek</h2>
+    <div class="filter-bar">
+      <input type="text" id="search-box" placeholder="Keresés cím vagy tartalom alapján...">
+      <select id="cat-filter"><option value="">Minden kategória</option></select>
+    </div>
+    <div id="entry-list"></div>
+  </div>
+
+</div>
+
+<script>
+var IS_LOCAL=location.protocol==='file:';
+var entries=[];
+var matchedId=null;
+
+function loadAll(){ try{entries=JSON.parse(localStorage.getItem('bfg_rulebook')||'[]');}catch(e){entries=[];} }
+function saveAll(){ localStorage.setItem('bfg_rulebook',JSON.stringify(entries)); }
+function gid(){return '_'+Date.now().toString(36)+Math.random().toString(36).substr(2,5);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function get(id){return document.getElementById(id);}
+function dl(content,name){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:'text/plain'}));a.download=name;a.click();URL.revokeObjectURL(a.href);}
+function fname(s){return s.replace(/[^a-z0-9]/gi,'_').replace(/_+/g,'_');}
+function toast(msg,col){var el=get('toast');el.textContent=msg;el.style.borderColor=col||'var(--gold)';el.style.color=col||'var(--gold)';el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show');},3000);}
+
+// normalization — ignore weapon-location words when matching
+function stripLocations(name){return String(name||'').replace(/\b(Port|Starboard|Dorsal|Prow|Thorax)\b/gi,'').replace(/\s+/g,' ').trim();}
+function normTitle(t){return stripLocations(t).toLowerCase().trim();}
+
+// ---- EXPORT ----
+function expEntry(entry){dl(JSON.stringify(entry,null,2),fname(entry.title)+'.txt');}
+function expManifest(){dl(JSON.stringify({rulebook:entries.map(function(e){return fname(e.title);})},null,2),'rulebook_manifest.json');}
+get('btn-exp-all').addEventListener('click',function(){if(!entries.length){toast('Nincs szócikk.','var(--dim)');return;}entries.forEach(expEntry);toast('✅ '+entries.length+' szócikk .txt letöltve','var(--green)');});
+get('btn-exp-manifest').addEventListener('click',function(){expManifest();toast('✅ rulebook_manifest.json letöltve','var(--green)');});
+
+// ---- IMPORT ----
+get('import-files').addEventListener('change',function(){
+  var files=this.files;if(!files.length)return;
+  var pending=files.length,n=0,err=0;
+  Array.from(files).forEach(function(file){
+    var r=new FileReader();
+    r.onload=function(e){try{var obj=JSON.parse(e.target.result);if(!obj.id)obj.id=gid();entries=entries.filter(function(x){return x.id!==obj.id;});entries.push(obj);n++;}catch(ex){err++;}
+      if(--pending===0){saveAll();renderList();var st=get('import-status');st.style.color='var(--green)';st.textContent='✅ '+n+' szócikk importálva'+(err?' ('+err+' hiba)':'');toast('✅ Import: '+n+' szócikk','var(--green)');}};
+    r.readAsText(file);
+  });
+  this.value='';
+});
+
+get('btn-reload').addEventListener('click',function(){if(IS_LOCAL){toast('Helyi módban nem elérhető.','var(--orange)');return;}autoLoad();});
+
+async function autoLoad(){
+  var el=get('load-status');
+  function set(bg,col,txt){el.style.background=bg;el.style.color=col;el.textContent=txt;}
+  if(IS_LOCAL){set('#1a1a0a','var(--orange)','📂 Helyi mód — localStorage. Importálj .txt fájlokat, vagy hozz létre újakat.');afterLoad();return;}
+  set('var(--inp)','var(--dim)','⏳ Betöltés GitHub-ról...');
+  try{
+    var mRes=await fetch('./data/rulebook/rulebook_manifest.json?_='+Date.now());if(!mRes.ok)throw new Error('HTTP '+mRes.status);
+    var manifest=await mRes.json();var n=0,fail=[];
+    for(var i=0;i<(manifest.rulebook||[]).length;i++){var name=manifest.rulebook[i];try{var r=await fetch('./data/rulebook/'+name+'.txt?_='+Date.now());if(!r.ok)throw 0;var obj=JSON.parse(await r.text());entries=entries.filter(function(x){return x.id!==obj.id;});entries.push(obj);n++;}catch(e2){fail.push(name);}}
+    saveAll();
+    if(fail.length) set('#2b2a0d','#c8b840','⚠️ '+n+' szócikk betöltve. Hiba: '+fail.join(', '));
+    else set('#0d2b1a','var(--green)','✅ '+n+' szócikk betöltve GitHub-ról.');
+  }catch(e3){set('#2b2a0d','#c8b840',entries.length?'⚠️ rulebook_manifest.json nem található. '+entries.length+' szócikk localStorage-ból.':'⚠️ rulebook_manifest.json nem található.');}
+  afterLoad();
+}
+
+// ---- FORM ----
+function clearForm(){
+  get('edit-entry-id').value='';get('entry-title').value='';get('entry-cat').value='';get('entry-content').value='';
+  get('entry-form-title').textContent='➕ Új Szócikk';get('btn-save-entry').textContent='💾 Mentés';get('btn-cancel-entry').style.display='none';
+}
+function startEdit(id){
+  var e=entries.find(function(x){return x.id===id;});if(!e)return;
+  get('edit-entry-id').value=e.id;get('entry-title').value=e.title;get('entry-cat').value=e.category||'';get('entry-content').value=e.content||'';
+  get('entry-form-title').textContent='✏️ '+e.title;get('btn-save-entry').textContent='💾 Mentés';get('btn-cancel-entry').style.display='inline-flex';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+get('btn-cancel-entry').addEventListener('click',clearForm);
+get('btn-save-entry').addEventListener('click',function(){
+  var title=get('entry-title').value.trim(),content=get('entry-content').value.trim();
+  if(!title||!content){toast('❌ Töltsd ki: Cím, Tartalom','var(--red)');return;}
+  var obj={title:title,category:get('entry-cat').value.trim(),content:content};
+  var eid=get('edit-entry-id').value;
+  if(eid){var i=entries.findIndex(function(x){return x.id===eid;});if(i!==-1){entries[i]=Object.assign({id:eid},obj);saveAll();expEntry(entries[i]);clearForm();renderList();toast('✅ "'+title+'" frissítve, .txt letöltve','var(--green)');}}
+  else{var e2=Object.assign({id:gid()},obj);entries.push(e2);saveAll();expEntry(e2);expManifest();clearForm();renderList();toast('✅ "'+title+'" mentve, .txt + rulebook_manifest.json letöltve','var(--green)');}
+});
+
+// ---- LIST ----
+function getUniq(arr,key){var r=[];arr.forEach(function(x){var v=x[key]||'';if(v&&r.indexOf(v)<0)r.push(v);});return r.sort();}
+
+function renderList(){
+  var sf=get('search-box').value.toLowerCase(),cf=get('cat-filter').value;
+  var catEl=get('cat-filter');var curCat=catEl.value;
+  catEl.innerHTML='<option value="">Minden kategória</option>'+getUniq(entries,'category').map(function(c){return '<option value="'+esc(c)+'"'+(c===curCat?' selected':'')+'>'+esc(c)+'</option>';}).join('');
+  var list=entries.filter(function(e){return(!cf||e.category===cf)&&(!sf||e.title.toLowerCase().indexOf(sf)>=0||(e.content||'').toLowerCase().indexOf(sf)>=0);});
+  list.sort(function(a,b){
+    if(a.id===matchedId)return -1; if(b.id===matchedId)return 1;
+    return a.title.localeCompare(b.title);
+  });
+  var el=get('entry-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>Nincs szócikk. Hozz létre egyet fent!</p></div>';return;}
+  el.innerHTML=list.map(function(e){
+    var isMatch=e.id===matchedId;
+    return '<div class="entry'+(isMatch?' match':'')+'" data-id="'+e.id+'">'
+      +'<div class="entry-head" data-id="'+e.id+'"><span class="entry-title">'+esc(e.title)+'</span>'+(e.category?'<span class="entry-cat">'+esc(e.category)+'</span>':'')+'<span class="entry-arrow">'+(isMatch?'▲':'▼')+'</span></div>'
+      +'<div class="entry-body'+(isMatch?' open':'')+'" id="body-'+e.id+'">'
+      +'<div class="entry-content">'+esc(e.content)+'</div>'
+      +'<div class="entry-acts"><button class="btn bgh bsm entry-edit" data-id="'+e.id+'">✏️ Edit</button><button class="btn bd bsm entry-del" data-id="'+e.id+'">🗑️ Törlés</button></div>'
+      +'</div></div>';
+  }).join('');
+  el.querySelectorAll('.entry-head').forEach(function(h){h.addEventListener('click',function(){
+    var id=h.dataset.id,body=get('body-'+id);
+    var open=body.classList.toggle('open');
+    h.querySelector('.entry-arrow').textContent=open?'▲':'▼';
+  });});
+  el.querySelectorAll('.entry-edit').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();startEdit(b.dataset.id);});});
+  el.querySelectorAll('.entry-del').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();if(!confirm('Törlöd ezt a szócikket?'))return;entries=entries.filter(function(x){return x.id!==b.dataset.id;});saveAll();expManifest();renderList();toast('🗑️ Szócikk törölve','#c8b840');});});
+}
+get('search-box').addEventListener('input',renderList);
+get('cat-filter').addEventListener('change',renderList);
+
+// ---- QUERY PARAM MATCHING (?q=weapon name from Battle mode) ----
+function wordsOf(s){return normTitle(s).split(/\s+/).filter(Boolean);}
+function scoreEntry(qWords,qNorm,entry){
+  var tNorm=normTitle(entry.title),tWords=wordsOf(entry.title);
+  if(!tNorm) return -999;
+  if(tNorm===qNorm) return 1000;
+  var common=qWords.filter(function(w){return tWords.indexOf(w)>=0;}).length;
+  var score=common*10;
+  if(qNorm.indexOf(tNorm)>=0) score+=15;
+  if(tNorm.indexOf(qNorm)>=0) score+=15;
+  score-=Math.abs(tWords.length-qWords.length)*0.5;
+  return score;
+}
+function findBestEntry(q){
+  if(!entries.length) return null;
+  var qNorm=normTitle(q),qWords=wordsOf(q);
+  var scored=entries.map(function(e){return {e:e,score:scoreEntry(qWords,qNorm,e)};});
+  scored.sort(function(a,b){return b.score-a.score;});
+  return scored[0];
+}
+
+function afterLoad(){
+  var params=new URLSearchParams(location.search);
+  var q=params.get('q');
+  matchedId=null;
+  if(q){
+    var result=findBestEntry(q);
+    if(result){
+      matchedId=result.e.id;
+      get('search-box').value='';
+      if(result.score>=1000){
+        get('notice-area').innerHTML='<div class="notice">📖 A(z) „'+esc(q)+'" fegyverhez tartozó szócikk: <b>'+esc(result.e.title)+'</b></div>';
+      }else{
+        get('notice-area').innerHTML='<div class="notice">📖 Nincs pontos egyezés a(z) „'+esc(q)+'"-ra, a legközelebbi találat: <b>'+esc(result.e.title)+'</b></div>';
+      }
+    }else{
+      get('search-box').value=q;
+      get('notice-area').innerHTML='<div class="notice">⚠️ Nincs szócikk a rulebookban még. Hozz létre egyet!</div>';
+    }
+  }
+  renderList();
+  if(matchedId){
+    setTimeout(function(){
+      var elx=document.querySelector('.entry[data-id="'+matchedId+'"]');
+      if(elx) elx.scrollIntoView({behavior:'smooth',block:'center'});
+    },100);
+  }
+}
+
+loadAll();
+autoLoad();
+</script>
+</body>
+</html>
