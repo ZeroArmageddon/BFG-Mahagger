@@ -92,6 +92,8 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
   <div class="fsec">
     <h2>📁 Adatkezelés</h2>
     <div class="status" id="load-status">⏳ Adatok keresése...</div>
+    <div id="load-status-detail"></div>
+    <div class="status" id="storage-status" style="color:var(--dim);">💾 Böngésző tárhely: számolás...</div>
     <p style="color:var(--dim);font-size:.78rem;margin-bottom:.65rem;">
       <b style="color:var(--gold);">Helyi:</b> localStorage-ban maradnak. Exportáld → töltsd fel a <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/ships/</code> és <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/commanders/</code> mappákba.<br>
       <b style="color:var(--gold);">GitHub Pages:</b> <code style="background:var(--inp);padding:.02rem .22rem;border-radius:2px;">data/manifest.json</code> alapján tölt be.<br>
@@ -112,6 +114,18 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
       <b style="color:var(--gold);font-size:.8rem;align-self:center;">📥 Import:</b>
       <label class="btn bgh bsm" style="cursor:pointer;">📂 .txt fájlok<input type="file" id="import-files" accept=".txt,.json" multiple style="display:none;"></label>
       <button class="btn bgh bsm" id="btn-reload">🔄 GitHub újratöltés</button>
+    </div>
+    <div class="brow" style="margin-top:.5rem;">
+      <button class="btn bt bsm" id="btn-compress-images">🗜️ Meglévő képek tömörítése</button>
+      <span style="font-size:.73rem;color:var(--dim);align-self:center;">Lekicsinyíti és tömöríti a már elmentett hajóképeket — nem törli, csak csökkenti a méretüket.</span>
+    </div>
+    <div class="brow" style="margin-top:.5rem;">
+      <button class="btn bt bsm" id="btn-detect-reloadable">🔍 Újratölthetők felismerése (összes hajó)</button>
+      <span style="font-size:.73rem;color:var(--dim);align-self:center;">Végigmegy MINDEN mentett hajón (alap + variációk), és megjelöli a "Launch Bay" / "Launcher" nevű fegyvereket újratölthetőnek.</span>
+    </div>
+    <div class="brow" style="margin-top:.5rem;">
+      <button class="btn bd bsm" id="btn-clear-storage" style="border:1px solid var(--red);">🧹 Böngésző tárhely ürítése (vészhelyzet)</button>
+      <span style="font-size:.73rem;color:var(--dim);align-self:center;">Ha "tárhely megtelt" hibát kapsz és a tömörítés sem elég: exportáld előbb az összes hajót .txt-be, majd nyomd meg ezt.</span>
     </div>
     <div id="import-status" style="font-size:.78rem;color:var(--dim);min-height:1em;margin-top:.38rem;"></div>
   </div>
@@ -137,7 +151,20 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
       <label>Kép URL</label>
       <input type="text" id="ship-img-url" placeholder="https://...">
       <input type="file" id="ship-img-file" accept="image/*" style="margin-top:.32rem;">
-      <img id="ship-img-prev" style="width:100%;max-height:170px;object-fit:contain;margin-top:.32rem;border-radius:4px;display:none;border:1px solid #333;">
+      <div id="ship-img-prev-wrap" style="display:none;margin-top:.32rem;border-radius:4px;border:1px solid #333;background-image:linear-gradient(45deg,#2a2a35 25%,transparent 25%),linear-gradient(-45deg,#2a2a35 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2a2a35 75%),linear-gradient(-45deg,transparent 75%,#2a2a35 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;background-color:#1a1a25;">
+        <img id="ship-img-prev" style="width:100%;max-height:220px;object-fit:contain;display:block;">
+      </div>
+      <div id="bg-removal-panel" style="display:none;margin-top:.5rem;padding:.6rem;background:var(--inp);border-radius:5px;border:1px solid #2a2a3a;">
+        <button type="button" class="loc-check bg-removal-toggle" id="bg-removal-toggle" style="border-color:var(--teal);">☐ Háttér eltávolítása (kísérleti)</button>
+        <div id="bg-removal-controls" style="display:none;margin-top:.5rem;">
+          <label style="font-size:.76rem;color:var(--dim);display:block;margin-bottom:.3rem;">
+            Érzékenység: <span id="bg-threshold-val">205</span>
+            <span style="font-size:.7rem;">(alacsonyabb = csak a legvilágosabb pixelek tűnnek el, magasabb = a szürkésebb háttér is)</span>
+          </label>
+          <input type="range" id="bg-threshold" min="140" max="245" value="205" style="width:100%;">
+          <p style="font-size:.72rem;color:var(--dim);margin-top:.35rem;">A körvonalak megállítják a törlést, így a hajón belüli világos részek megmaradnak. Ha a kép nem PNG/átlátszó forrásból jött, próbálj más érzékenységet, ha a körvonal is eltűnne.</p>
+        </div>
+      </div>
     </div>
 
     <!-- UNOFFICIAL / COMMUNITY -->
@@ -151,7 +178,7 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
 
     <!-- WEAPONS -->
     <hr class="divider">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;flex-wrap:wrap;gap:.35rem;">
       <span style="color:var(--gold);font-weight:bold;font-size:.9rem;">🔫 Fegyverek (Armament)</span>
       <button class="btn bgh bsm" id="btn-add-weapon">+ Hozzáadás</button>
     </div>
@@ -234,8 +261,149 @@ function loadAll() {
   try { fleets     = JSON.parse(localStorage.getItem('bfg_fleets')     || '[]'); } catch(e) { fleets = []; }
 }
 function saveShips() {
-  localStorage.setItem('bfg_ships',      JSON.stringify(ships));
-  localStorage.setItem('bfg_commanders', JSON.stringify(commanders));
+  try{
+    localStorage.setItem('bfg_ships',      JSON.stringify(ships));
+    localStorage.setItem('bfg_commanders', JSON.stringify(commanders));
+    return true;
+  }catch(e){
+    console.error('localStorage save failed:', e);
+    return false;
+  }
+}
+
+// ---- IMAGE COMPRESSION (Canvas-based, runs entirely in the browser) ----
+// Resizes to maxDim on the longer side and re-encodes as JPEG at the given
+// quality. This is what keeps base64-embedded images from eating localStorage.
+function compressImage(dataUrl, maxDim, quality){
+  return new Promise(function(resolve){
+    if(!dataUrl||dataUrl.indexOf('data:image')!==0){ resolve(dataUrl); return; }
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width, h=img.height;
+      if(w>maxDim||h>maxDim){
+        if(w>h){ h=Math.round(h*maxDim/w); w=maxDim; }
+        else{ w=Math.round(w*maxDim/h); h=maxDim; }
+      }
+      var canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      var ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      try{ resolve(canvas.toDataURL('image/jpeg',quality)); }
+      catch(e){ resolve(dataUrl); } // e.g. tainted canvas from a cross-origin URL — leave unchanged
+    };
+    img.onerror=function(){ resolve(dataUrl); };
+    img.src=dataUrl;
+  });
+}
+
+// ---- BACKGROUND REMOVAL ----
+// Flood-fills from the image border, clearing near-white/gray "background" pixels
+// (based on lightness) but stopping at darker outline pixels — so enclosed light
+// areas inside the ship's silhouette are preserved, only the connected background goes.
+function removeBackgroundFromDataUrl(dataUrl, threshold){
+  return new Promise(function(resolve){
+    if(!dataUrl){ resolve(dataUrl); return; }
+    var img=new Image();
+    img.onload=function(){
+      var maxDim=800, w=img.width, h=img.height;
+      if(w>maxDim||h>maxDim){
+        if(w>h){ h=Math.round(h*maxDim/w); w=maxDim; }
+        else{ w=Math.round(w*maxDim/h); h=maxDim; }
+      }
+      var canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      var ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      var imgData;
+      try{ imgData=ctx.getImageData(0,0,w,h); }
+      catch(e){ resolve(dataUrl); return; } // cross-origin tainted canvas — can't process
+      var data=imgData.data;
+      var visited=new Uint8Array(w*h);
+      var queue=new Int32Array(w*h);
+      var qHead=0, qTail=0;
+      function lightness(p){ var o=p*4; return 0.299*data[o]+0.587*data[o+1]+0.114*data[o+2]; }
+      for(var x=0;x<w;x++){ queue[qTail++]=x; queue[qTail++]=(h-1)*w+x; }
+      for(var y=0;y<h;y++){ queue[qTail++]=y*w; queue[qTail++]=y*w+(w-1); }
+      while(qHead<qTail){
+        var p=queue[qHead++];
+        if(visited[p]) continue;
+        visited[p]=1;
+        if(lightness(p)<threshold) continue; // dark outline pixel — wall, keep opaque, stop spreading
+        data[p*4+3]=0; // background pixel — make transparent
+        var x2=p%w, y2=(p/w)|0;
+        if(x2>0){ var n=p-1; if(!visited[n]) queue[qTail++]=n; }
+        if(x2<w-1){ var n=p+1; if(!visited[n]) queue[qTail++]=n; }
+        if(y2>0){ var n=p-w; if(!visited[n]) queue[qTail++]=n; }
+        if(y2<h-1){ var n=p+w; if(!visited[n]) queue[qTail++]=n; }
+      }
+      ctx.putImageData(imgData,0,0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror=function(){ resolve(dataUrl); };
+    img.src=dataUrl;
+  });
+}
+
+var bgThresholdDebounce=null;
+get('bg-removal-toggle').addEventListener('click',function(){
+  var on=this.classList.toggle('checked');
+  this.textContent=on?'✅ Háttér eltávolítása (kísérleti)':'☐ Háttér eltávolítása (kísérleti)';
+  get('bg-removal-controls').style.display=on?'block':'none';
+  if(on){
+    applyBgRemoval();
+  } else {
+    get('ship-img-url').value=bgRemovalSource;
+    setImagePreview(bgRemovalSource,false);
+  }
+});
+get('bg-threshold').addEventListener('input',function(){
+  get('bg-threshold-val').textContent=this.value;
+  clearTimeout(bgThresholdDebounce);
+  bgThresholdDebounce=setTimeout(applyBgRemoval,150);
+});
+async function applyBgRemoval(){
+  if(!bgRemovalSource) return;
+  var threshold=parseInt(get('bg-threshold').value);
+  var result=await removeBackgroundFromDataUrl(bgRemovalSource,threshold);
+  get('ship-img-url').value=result;
+  setImagePreview(result,false);
+}
+
+async function compressExistingImages(){
+  var candidates=ships.filter(function(s){ return s.image && s.image.indexOf('data:image')===0 && s.image.length>150*1024; });
+  if(!candidates.length){ toast('Nincs tömörítendő nagy kép a meglévő hajóknál.','var(--dim)'); return; }
+  toast('🗜️ Tömörítés folyamatban… ('+candidates.length+' kép)','var(--gold)');
+  var totalBefore=0, totalAfter=0;
+  for(var i=0;i<candidates.length;i++){
+    var s=candidates[i];
+    totalBefore+=s.image.length;
+    var compressed=await compressImage(s.image,800,0.72);
+    s.image=compressed;
+    totalAfter+=compressed.length;
+  }
+  var ok=saveShips();
+  renderDevShips(); renderStorageStatus();
+  var savedKB=Math.round((totalBefore-totalAfter)/1024);
+  if(ok) toast('🗜️ '+candidates.length+' kép tömörítve — kb. '+savedKB+' KB felszabadítva.','var(--green)');
+  else toast('⚠️ Tömörítve, de így is sok a tárhely — exportáld a hajókat és üríts helyet.','var(--orange)');
+}
+
+function getStorageUsageKB(){
+  var total=0;
+  try{
+    for(var key in localStorage){
+      if(localStorage.hasOwnProperty(key)) total+=(localStorage[key].length+key.length);
+    }
+  }catch(e){}
+  return Math.round(total/1024);
+}
+function renderStorageStatus(){
+  var el=get('storage-status'); if(!el) return;
+  var kb=getStorageUsageKB();
+  var pct=Math.min(100,Math.round(kb/5120*100)); // browsers commonly cap around 5MB per origin
+  var col=pct>90?'var(--red)':pct>70?'var(--orange)':'var(--dim)';
+  el.style.color=col;
+  el.textContent='💾 Böngésző tárhely: ~'+kb+' KB használva'+(pct>70?' ('+pct+'% — közel a limithez! Nagy képek eltávolítása vagy URL-es kép használata ajánlott.)':'');
 }
 function gid() { return '_' + Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -258,6 +426,17 @@ var btnExpUnofficialManifest=get('btn-exp-unofficial-manifest');
 if(btnExpUnofficialManifest) btnExpUnofficialManifest.addEventListener('click',function(){ expUnofficialManifest(); toast('✅ unofficial_manifest.json letöltve — data/ mappa gyökerébe (manifest.json mellé)','var(--orange)'); });
 
 get('btn-reload').addEventListener('click',function(){ if(IS_LOCAL){toast('Helyi módban nem elérhető.','var(--orange)');return;} autoLoad(); });
+
+get('btn-compress-images').addEventListener('click',compressExistingImages);
+
+get('btn-clear-storage').addEventListener('click',function(){
+  if(!confirm('Ez törli az ÖSSZES böngészőben tárolt hajót és commandert (a data/ mappában lévő fájlokat NEM érinti). Biztosan folytatod? Előbb exportáld a hajóidat, ha még nem tetted!')) return;
+  localStorage.removeItem('bfg_ships');
+  localStorage.removeItem('bfg_commanders');
+  ships=[]; commanders=[];
+  renderDevShips(); renderDevCmds(); renderStorageStatus();
+  toast('🧹 Böngésző tárhely kiürítve. Importáld vissza a .txt fájlokat, vagy tölts be a GitHub-ról.','var(--green)');
+});
 get('import-files').addEventListener('change',function(){
   var files=this.files; if(!files.length) return;
   var pending=files.length,s=0,c=0,err=0;
@@ -269,34 +448,100 @@ get('import-files').addEventListener('change',function(){
   this.value='';
 });
 
+// Fetches and parses a single ship/commander .txt file, returning a detailed
+// reason on failure (HTTP status, invalid JSON, or network error) instead of
+// just "it didn't work" — so a handful of failing files can actually be diagnosed.
+async function fetchDataFile(url){
+  var res;
+  try{ res=await fetch(url+'?_='+Date.now()); }
+  catch(networkErr){ return {ok:false, reason:'hálózati hiba: '+networkErr.message}; }
+  if(!res.ok) return {ok:false, reason:'HTTP '+res.status+(res.status===404?' (fájl nem található)':'')};
+  var text;
+  try{ text=await res.text(); }
+  catch(readErr){ return {ok:false, reason:'olvasási hiba: '+readErr.message}; }
+  var obj;
+  try{ obj=JSON.parse(text); }
+  catch(parseErr){ return {ok:false, reason:'hibás JSON formátum: '+parseErr.message}; }
+  return {ok:true, obj:obj};
+}
+
 async function autoLoad() {
   var el=get('load-status');
   function set(bg,col,txt){el.style.background=bg;el.style.color=col;el.textContent=txt;}
-  if(IS_LOCAL){set('#1a1a0a','var(--orange)','📂 Helyi mód — localStorage. Importálj .txt fájlokat, vagy hozz létre újakat.');return;}
+  if(IS_LOCAL){set('#1a1a0a','var(--orange)','📂 Helyi mód — localStorage. Importálj .txt fájlokat, vagy hozz létre újakat.');get('load-status-detail').innerHTML='';return;}
   set('var(--inp)','var(--dim)','⏳ Betöltés GitHub-ról...');
-  var s=0,c=0,u=0,fail=[];
+  get('load-status-detail').innerHTML='';
+  var s=0,c=0,u=0,fail=[]; // fail: [{name, kind, reason}]
   try{
     var mRes=await fetch('./data/manifest.json?_='+Date.now()); if(!mRes.ok) throw new Error('HTTP '+mRes.status);
     var manifest=await mRes.json();
-    for(var i=0;i<(manifest.ships||[]).length;i++){var n=manifest.ships[i];try{var r=await fetch('./data/ships/'+n+'.txt?_='+Date.now());if(!r.ok)throw 0;var obj=JSON.parse(await r.text());ships=ships.filter(function(x){return x.id!==obj.id;});ships.push(obj);s++;}catch(e2){fail.push(n);}}
-    for(var j=0;j<(manifest.commanders||[]).length;j++){var m=manifest.commanders[j];try{var r2=await fetch('./data/commanders/'+m+'.txt?_='+Date.now());if(!r2.ok)throw 0;var obj2=JSON.parse(await r2.text());commanders=commanders.filter(function(x){return x.id!==obj2.id;});commanders.push(obj2);c++;}catch(e3){fail.push(m);}}
-  }catch(eMain){ fail.push('manifest.json'); }
+    for(var i=0;i<(manifest.ships||[]).length;i++){
+      var n=manifest.ships[i];
+      var res=await fetchDataFile('./data/ships/'+n+'.txt');
+      if(res.ok){ ships=ships.filter(function(x){return x.id!==res.obj.id;}); ships.push(res.obj); s++; }
+      else{ fail.push({name:n, kind:'hajó', reason:res.reason}); }
+    }
+    for(var j=0;j<(manifest.commanders||[]).length;j++){
+      var m=manifest.commanders[j];
+      var resC=await fetchDataFile('./data/commanders/'+m+'.txt');
+      if(resC.ok){ commanders=commanders.filter(function(x){return x.id!==resC.obj.id;}); commanders.push(resC.obj); c++; }
+      else{ fail.push({name:m, kind:'commander', reason:resC.reason}); }
+    }
+  }catch(eMain){ fail.push({name:'manifest.json', kind:'manifest', reason:eMain.message}); }
   // unofficial ships — separate folder & manifest
   try{
     var uRes=await fetch('./data/unofficial_manifest.json?_='+Date.now());
     if(uRes.ok){
       var uManifest=await uRes.json();
-      for(var k=0;k<(uManifest.unofficial_ships||[]).length;k++){var un=uManifest.unofficial_ships[k];try{var r3=await fetch('./data/unofficial_ships/'+un+'.txt?_='+Date.now());if(!r3.ok)throw 0;var obj3=JSON.parse(await r3.text());obj3.unofficial=true;ships=ships.filter(function(x){return x.id!==obj3.id;});ships.push(obj3);u++;}catch(e4){fail.push(un);}}
+      for(var k=0;k<(uManifest.unofficial_ships||[]).length;k++){
+        var un=uManifest.unofficial_ships[k];
+        var resU=await fetchDataFile('./data/unofficial_ships/'+un+'.txt');
+        if(resU.ok){ resU.obj.unofficial=true; ships=ships.filter(function(x){return x.id!==resU.obj.id;}); ships.push(resU.obj); u++; }
+        else{ fail.push({name:un, kind:'unofficial hajó', reason:resU.reason}); }
+      }
     }
   }catch(eUn){ /* unofficial manifest optional — no error shown if missing */ }
-  saveShips(); renderDevShips(); renderDevCmds();
-  if(fail.length) set('#2b2a0d','#c8b840','⚠️ '+s+' hivatalos, '+u+' unofficial hajó, '+c+' commander betöltve. Hiba: '+fail.join(', '));
-  else set('#0d2b1a','var(--green)','✅ '+s+' hivatalos hajó'+(u?', '+u+' unofficial hajó':'')+', '+c+' commander betöltve GitHub-ról.');
+  saveShips(); renderDevShips(); renderDevCmds(); renderStorageStatus();
+  if(fail.length){
+    set('#2b2a0d','#c8b840','⚠️ '+s+' hivatalos, '+u+' unofficial hajó, '+c+' commander betöltve. '+fail.length+' fájl nem töltődött be — részletek lent.');
+    get('load-status-detail').innerHTML='<div style="margin-top:.4rem;font-size:.78rem;">'
+      +fail.map(function(f){ return '<div style="padding:.3rem .5rem;background:#1a0d0d;border-left:2px solid var(--red);margin-bottom:.25rem;border-radius:2px;"><b style="color:var(--red);">'+esc(f.name)+'</b> <span style="color:var(--dim);">('+esc(f.kind)+')</span> — '+esc(f.reason)+'</div>'; }).join('')
+      +'</div>';
+  } else {
+    set('#0d2b1a','var(--green)','✅ '+s+' hivatalos hajó'+(u?', '+u+' unofficial hajó':'')+', '+c+' commander betöltve GitHub-ról.');
+  }
 }
 
 // IMAGE PREVIEW
-get('ship-img-url').addEventListener('input',function(){ var p=get('ship-img-prev'); p.src=this.value; p.style.display=this.value?'block':'none'; });
-get('ship-img-file').addEventListener('change',function(){ var f=this.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(e){get('ship-img-url').value=e.target.result;var p=get('ship-img-prev');p.src=e.target.result;p.style.display='block';}; r.readAsDataURL(f); });
+var bgRemovalSource=''; // the un-modified image (before background removal) to always re-derive from
+
+function setImagePreview(dataOrUrl, resetBgPanel){
+  var wrap=get('ship-img-prev-wrap'), p=get('ship-img-prev');
+  if(dataOrUrl){ p.src=dataOrUrl; wrap.style.display='block'; get('bg-removal-panel').style.display='block'; }
+  else{ wrap.style.display='none'; get('bg-removal-panel').style.display='none'; }
+  if(resetBgPanel!==false){
+    bgRemovalSource=dataOrUrl||'';
+    get('bg-removal-toggle').classList.remove('checked');
+    get('bg-removal-toggle').textContent='☐ Háttér eltávolítása (kísérleti)';
+    get('bg-removal-controls').style.display='none';
+  }
+}
+
+get('ship-img-url').addEventListener('input',function(){ setImagePreview(this.value); });
+get('ship-img-file').addEventListener('change',function(){
+  var f=this.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=async function(e){
+    var raw=e.target.result;
+    setImagePreview(raw);
+    var compressed=await compressImage(raw,800,0.75);
+    get('ship-img-url').value=compressed;
+    setImagePreview(compressed);
+    var beforeKB=Math.round(raw.length/1024), afterKB=Math.round(compressed.length/1024);
+    if(beforeKB-afterKB>20) toast('🗜️ Kép automatikusan tömörítve: '+beforeKB+'KB → '+afterKB+'KB','var(--green)');
+  };
+  r.readAsDataURL(f);
+});
 
 // ============================================================
 // WEAPON EDITOR
@@ -307,17 +552,20 @@ function makeWeaponHtml(w, i) {
     return '<button type="button" class="loc-check'+(checked?' checked':'')+'" data-i="'+i+'" data-loc="'+loc+'">'+loc+'</button>';
   }).join('');
   var isOpt=!!w.optional;
+  var isReload=!!w.reloadable;
   return '<div class="wge">'
-    +'<div class="wge-hdr"><span class="wge-nm">🔫 '+esc(w.name||'Névtelen')+(isOpt?' <span style="color:var(--orange);font-size:.72rem;">választható</span>':'')+'</span><button class="btn bd bsm" data-wi="'+i+'">Törlés</button></div>'
+    +'<div class="wge-hdr"><span class="wge-nm">🔫 '+esc(w.name||'Névtelen')+(isOpt?' <span style="color:var(--orange);font-size:.72rem;">választható</span>':'')+(isReload?' <span style="color:var(--teal);font-size:.72rem;">🔄 újratölthető</span>':'')+'</span><button class="btn bd bsm" data-wi="'+i+'">Törlés</button></div>'
     +'<div class="frow"><div class="fg" style="flex:2;"><label>Armament neve *</label><input type="text" class="wpn-name" data-i="'+i+'" value="'+esc(w.name||'')+'"></div>'
     +'<div class="fg" style="flex:1;"><label>Range / Speed</label><input type="text" class="wpn-range" data-i="'+i+'" value="'+esc(w.range||'')+'" placeholder="pl. 60cm"></div></div>'
     +'<div class="frow"><div class="fg" style="flex:1;"><label>Firepower / Str</label><input type="text" class="wpn-fp" data-i="'+i+'" value="'+esc(w.fp||'')+'" placeholder="pl. 4"></div>'
     +'<div class="fg" style="flex:1;"><label>Fire Arc</label><input type="text" class="wpn-arc" data-i="'+i+'" value="'+esc(w.arc||'')+'" placeholder="pl. 45°"></div></div>'
     +'<div class="fg"><label>Elhelyezkedés</label><div class="loc-checks">'+locChecks+'</div></div>'
-    +'<div style="margin-top:.45rem;padding-top:.45rem;border-top:1px solid #2a2a3a;">'
+    +'<div style="margin-top:.45rem;padding-top:.45rem;border-top:1px solid #2a2a3a;display:flex;gap:.4rem;flex-wrap:wrap;">'
     +'<button type="button" class="loc-check wpn-opt-toggle'+(isOpt?' checked':'')+'" data-i="'+i+'">'+(isOpt?'✅ Választható fegyver':'☐ Választható fegyver')+'</button>'
+    +'<button type="button" class="loc-check wpn-reload-toggle'+(isReload?' checked':'')+'" data-i="'+i+'" style="'+(isReload?'border-color:var(--teal);color:var(--teal);':'')+'">'+(isReload?'✅ Újratölthető fegyver':'☐ Újratölthető fegyver')+'</button>'
+    +'</div>'
     +(isOpt?'<div class="frow" style="margin-top:.4rem;"><div class="fg" style="flex:1;"><label>Pontérték</label><input type="number" class="wpn-pts" data-i="'+i+'" value="'+(w.pts||0)+'" min="0"></div><div class="fg" style="flex:1;"><label>Max db</label><input type="number" class="wpn-max" data-i="'+i+'" value="'+(w.max||1)+'" min="1"></div></div>':'')
-    +'</div></div>';
+    +'</div>';
 }
 function bindWeaponEvents(el, arr) {
   el.querySelectorAll('[data-wi]').forEach(function(btn){ btn.addEventListener('click',function(){ arr.splice(parseInt(btn.dataset.wi),1); renderWeaponsInto(el,arr); }); });
@@ -327,8 +575,9 @@ function bindWeaponEvents(el, arr) {
   el.querySelectorAll('.wpn-arc').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].arc=inp.value; }); });
   el.querySelectorAll('.wpn-pts').forEach(function(inp){ inp.addEventListener('change',function(){ arr[+inp.dataset.i].pts=parseInt(inp.value)||0; }); });
   el.querySelectorAll('.wpn-max').forEach(function(inp){ inp.addEventListener('change',function(){ arr[+inp.dataset.i].max=parseInt(inp.value)||1; }); });
-  el.querySelectorAll('.loc-check:not(.wpn-opt-toggle)').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i,loc=btn.dataset.loc,w=arr[i]; if(!w.locations) w.locations=[]; var idx=w.locations.indexOf(loc); if(idx>=0) w.locations.splice(idx,1); else w.locations.push(loc); btn.classList.toggle('checked',w.locations.indexOf(loc)>=0); }); });
+  el.querySelectorAll('.loc-check:not(.wpn-opt-toggle):not(.wpn-reload-toggle)').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i,loc=btn.dataset.loc,w=arr[i]; if(!w.locations) w.locations=[]; var idx=w.locations.indexOf(loc); if(idx>=0) w.locations.splice(idx,1); else w.locations.push(loc); btn.classList.toggle('checked',w.locations.indexOf(loc)>=0); }); });
   el.querySelectorAll('.wpn-opt-toggle').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i; arr[i].optional=!arr[i].optional; if(!arr[i].optional){arr[i].pts=0;arr[i].max=1;} renderWeaponsInto(el,arr); }); });
+  el.querySelectorAll('.wpn-reload-toggle').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i; arr[i].reloadable=!arr[i].reloadable; renderWeaponsInto(el,arr); }); });
 }
 function renderWeaponsInto(el, arr) {
   if(!arr.length){ el.innerHTML='<div style="color:var(--dim);font-size:.8rem;padding:.28rem 0;">Még nincs fegyver.</div>'; return; }
@@ -336,7 +585,42 @@ function renderWeaponsInto(el, arr) {
   bindWeaponEvents(el, arr);
 }
 function renderWeapons() { renderWeaponsInto(get('weapon-list'), curWeapons); }
-get('btn-add-weapon').addEventListener('click',function(){ curWeapons.push({id:gid(),name:'Új fegyver',range:'',fp:'',arc:'',locations:[],optional:false,pts:0,max:1}); renderWeapons(); });
+get('btn-add-weapon').addEventListener('click',function(){ curWeapons.push({id:gid(),name:'Új fegyver',range:'',fp:'',arc:'',locations:[],optional:false,pts:0,max:1,reloadable:false}); renderWeapons(); });
+get('btn-detect-reloadable').addEventListener('click',autoDetectReloadableGlobal);
+
+// Scans EVERY saved ship (base weapons + all variants) and marks weapons whose
+// name contains "Launch Bay(s)" or "Launcher" as reloadable. This is a global,
+// one-click bulk pass over the whole ship roster — not just the ship currently
+// open in the form. The user can still fine-tune individual weapons by hand
+// afterwards (the per-weapon toggle is always available too).
+function autoDetectReloadableGlobal(){
+  var pattern=/launch\s*bay|launcher/i;
+  var count=0, shipsAffected=0;
+  ships.forEach(function(s){
+    var hitOnThisShip=false;
+    (s.weapons||[]).forEach(function(w){ if(pattern.test(w.name||'')&&!w.reloadable){ w.reloadable=true; count++; hitOnThisShip=true; } });
+    (s.variants||[]).forEach(function(v){ (v.weapons||[]).forEach(function(w){ if(pattern.test(w.name||'')&&!w.reloadable){ w.reloadable=true; count++; hitOnThisShip=true; } }); });
+    if(hitOnThisShip) shipsAffected++;
+  });
+  var ok=saveShips();
+  // If a ship is currently open in the edit form, refresh its editor state too
+  // so the form doesn't show stale (unmarked) data after the bulk update.
+  var eid=get('edit-ship-id').value;
+  if(eid){
+    var openShip=ships.find(function(x){return x.id===eid;});
+    if(openShip){
+      curWeapons=JSON.parse(JSON.stringify(openShip.weapons||[]));
+      curVariants=JSON.parse(JSON.stringify(openShip.variants||[]));
+      renderWeapons(); renderVariants();
+    }
+  }
+  renderDevShips(); renderStorageStatus();
+  if(!count){ toast('Nem található "Launch Bay" vagy "Launcher" nevű fegyver egyetlen hajónál sem.','var(--dim)'); return; }
+  if(ok) toast('🔄 '+count+' fegyver megjelölve újratölthetőnek, '+shipsAffected+' hajónál összesen.','var(--teal)');
+  else toast('⚠️ Fegyverek megjelölve, de a mentés sikertelen (tárhely megtelt) — exportáld a hajókat.','var(--orange)');
+}
+
+
 
 // ============================================================
 // WARGEAR EDITOR
@@ -345,6 +629,7 @@ function makeWgHtml(wg, i) {
   var hpBonus = wg.hitsBonus||0;
   var grants = !!wg.grantsWeapon;
   var w = wg.weapon || {name:'',range:'',fp:'',arc:'',locations:[]};
+  if(!w.id) w.id=gid();
   var locChecks = LOCS.map(function(loc){
     var checked=(w.locations||[]).indexOf(loc)>=0;
     return '<button type="button" class="loc-check wg-loc'+(checked?' checked':'')+'" data-i="'+i+'" data-loc="'+loc+'">'+loc+'</button>';
@@ -372,7 +657,7 @@ function bindWgEvents(el, arr) {
   el.querySelectorAll('.wg-max').forEach(function(inp){ inp.addEventListener('change',function(){ arr[+inp.dataset.i].max=parseInt(inp.value)||1; }); });
   el.querySelectorAll('.wg-desc').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].desc=inp.value; }); });
   el.querySelectorAll('.wg-hp').forEach(function(inp){ inp.addEventListener('change',function(){ arr[+inp.dataset.i].hitsBonus=parseInt(inp.value)||0; renderWgInto(el,arr); }); });
-  el.querySelectorAll('.wg-grant-toggle').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i; arr[i].grantsWeapon=!arr[i].grantsWeapon; if(arr[i].grantsWeapon&&!arr[i].weapon) arr[i].weapon={name:'',range:'',fp:'',arc:'',locations:[]}; renderWgInto(el,arr); }); });
+  el.querySelectorAll('.wg-grant-toggle').forEach(function(btn){ btn.addEventListener('click',function(){ var i=+btn.dataset.i; arr[i].grantsWeapon=!arr[i].grantsWeapon; if(arr[i].grantsWeapon&&!arr[i].weapon) arr[i].weapon={id:gid(),name:'',range:'',fp:'',arc:'',locations:[]}; renderWgInto(el,arr); }); });
   el.querySelectorAll('.wg-wpn-name').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].weapon.name=inp.value; }); });
   el.querySelectorAll('.wg-wpn-range').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].weapon.range=inp.value; }); });
   el.querySelectorAll('.wg-wpn-fp').forEach(function(inp){ inp.addEventListener('input',function(){ arr[+inp.dataset.i].weapon.fp=inp.value; }); });
@@ -429,7 +714,7 @@ function renderVariants() {
   el.querySelectorAll('.var-pts').forEach(function(inp){ inp.addEventListener('change',function(){ curVariants[+inp.dataset.vi].points=parseInt(inp.value)||0; }); });
   el.querySelectorAll('.var-hits').forEach(function(inp){ inp.addEventListener('change',function(){ curVariants[+inp.dataset.vi].hits=parseInt(inp.value)||8; }); });
   el.querySelectorAll('.var-stats').forEach(function(inp){ inp.addEventListener('input',function(){ curVariants[+inp.dataset.vi].stats=inp.value; }); });
-  el.querySelectorAll('.var-add-wpn').forEach(function(btn){ btn.addEventListener('click',function(){ var vi=+btn.dataset.vi; curVariants[vi].weapons.push({id:gid(),name:'Új fegyver',range:'',fp:'',arc:'',locations:[],optional:false,pts:0,max:1}); renderWeaponsInto(get('var-wpn-list-'+vi),curVariants[vi].weapons); }); });
+  el.querySelectorAll('.var-add-wpn').forEach(function(btn){ btn.addEventListener('click',function(){ var vi=+btn.dataset.vi; curVariants[vi].weapons.push({id:gid(),name:'Új fegyver',range:'',fp:'',arc:'',locations:[],optional:false,pts:0,max:1,reloadable:false}); renderWeaponsInto(get('var-wpn-list-'+vi),curVariants[vi].weapons); }); });
   el.querySelectorAll('.var-add-wg').forEach(function(btn){ btn.addEventListener('click',function(){ var vi=+btn.dataset.vi; curVariants[vi].wargear.push({id:gid(),name:'Új wargear',pts:0,desc:'',max:1}); renderWgInto(get('var-wg-list-'+vi),curVariants[vi].wargear); }); });
   el.querySelectorAll('.var-collapse-btn').forEach(function(btn){ btn.addEventListener('click',function(){ var body=get('var-body-'+btn.dataset.vi); var collapsed=body.classList.toggle('collapsed'); btn.textContent=collapsed?'▼ Kibont':'▲ Összecsuk'; }); });
 }
@@ -448,7 +733,7 @@ get('ship-unofficial-toggle').addEventListener('click',function(){
 function clearShipForm() {
   get('edit-ship-id').value='';
   ['ship-name','ship-type','ship-faction','ship-subfaction','ship-points','ship-stats','ship-img-url','ship-package'].forEach(function(id){get(id).value='';});
-  get('ship-hits').value='8'; get('ship-img-file').value=''; get('ship-img-prev').style.display='none';
+  get('ship-hits').value='8'; get('ship-img-file').value=''; setImagePreview('');
   get('ship-form-title').textContent='➕ Új Hajó'; get('btn-save-ship').textContent='💾 Mentés'; get('btn-cancel-ship').style.display='none';
   curWeapons=[]; curWg=[]; curVariants=[]; curUnofficial=false;
   var ut=get('ship-unofficial-toggle'); ut.classList.remove('checked'); ut.textContent='☐ Unofficial (Community Made)';
@@ -460,7 +745,7 @@ function startEditShip(id) {
   get('edit-ship-id').value=s.id; get('ship-name').value=s.name; get('ship-type').value=s.type||'';
   get('ship-faction').value=s.faction||''; get('ship-subfaction').value=s.subfaction||'';
   get('ship-points').value=s.points; get('ship-hits').value=s.hits||8; get('ship-stats').value=s.stats||'';
-  get('ship-img-url').value=s.image||''; var p=get('ship-img-prev'); p.src=s.image||''; p.style.display=s.image?'block':'none';
+  get('ship-img-url').value=s.image||''; setImagePreview(s.image||'');
   curWeapons=JSON.parse(JSON.stringify(s.weapons||[])); curWg=JSON.parse(JSON.stringify(s.wargear||[]));
   curVariants=JSON.parse(JSON.stringify(s.variants||[]));
   curUnofficial=!!s.unofficial;
@@ -480,9 +765,43 @@ get('btn-save-ship').addEventListener('click',function(){
   if(curUnofficial&&!get('ship-package').value.trim()){toast('❌ Add meg a csomag nevét (Unofficial hajónál kötelező)','var(--red)');return;}
   var obj={name:name,type:get('ship-type').value.trim(),faction:faction,subfaction:get('ship-subfaction').value.trim(),points:points,hits:parseInt(get('ship-hits').value)||8,stats:get('ship-stats').value,image:get('ship-img-url').value,weapons:JSON.parse(JSON.stringify(curWeapons)),wargear:JSON.parse(JSON.stringify(curWg)),variants:JSON.parse(JSON.stringify(curVariants)),unofficial:curUnofficial,packageName:curUnofficial?get('ship-package').value.trim():''};
   var eid=get('edit-ship-id').value;
-  if(eid){ var idx=ships.findIndex(function(x){return x.id===eid;}); if(idx!==-1){ships[idx]=Object.assign(ships[idx],obj);saveShips();expShip(ships[idx]);clearShipForm();renderDevShips();toast('✅ "'+name+'" frissítve, .txt letöltve','var(--green)');} }
-  else{ var ship=Object.assign({id:gid()},obj);ships.push(ship);saveShips();expShip(ship);if(ship.unofficial){expUnofficialManifest();}else{expManifest();}clearShipForm();renderDevShips();toast('✅ "'+name+'" mentve, .txt + '+(ship.unofficial?'unofficial_manifest.json':'manifest.json')+' letöltve','var(--green)'); }
+  var savedShip, ok;
+  if(eid){
+    var idx=ships.findIndex(function(x){return x.id===eid;});
+    if(idx!==-1){
+      var backup=ships[idx];
+      ships[idx]=Object.assign({},ships[idx],obj);
+      savedShip=ships[idx];
+      ok=saveShips();
+      if(!ok){ ships[idx]=backup; showStorageError(savedShip); return; }
+      expShip(savedShip);clearShipForm();renderDevShips();renderStorageStatus();
+      toast('✅ "'+name+'" frissítve, .txt letöltve','var(--green)');
+    }
+  } else {
+    savedShip=Object.assign({id:gid()},obj);
+    ships.push(savedShip);
+    ok=saveShips();
+    if(!ok){ ships.pop(); showStorageError(savedShip); return; }
+    expShip(savedShip);if(savedShip.unofficial){expUnofficialManifest();}else{expManifest();}clearShipForm();renderDevShips();renderStorageStatus();
+    toast('✅ "'+name+'" mentve, .txt + '+(savedShip.unofficial?'unofficial_manifest.json':'manifest.json')+' letöltve','var(--green)');
+  }
 });
+
+// Shown when localStorage write fails (quota exceeded). We still let the user
+// download the .txt for this ship so no work is lost, even though it couldn't
+// be kept in browser storage.
+function showStorageError(ship){
+  expShip(ship);
+  var kb=getStorageUsageKB();
+  get('dev-status').style.display='block';
+  get('dev-status').style.color='var(--red)';
+  get('dev-status').innerHTML='❌ A böngésző tárhelye megtelt (~'+kb+' KB használva) — a hajó NEM lett elmentve a böngészőben, de a .txt fájlt letöltöttem, hogy ne vesszen el. '
+    +'Ez általában sok/nagy méretű beágyazott kép (base64) miatt történik. Megoldás: '
+    +'1) Kattints a fenti <b>🗜️ Meglévő képek tömörítése</b> gombra, ez általában felszabadít elég helyet, majd próbáld újra a mentést. '
+    +'2) Ha ez sem elég: exportáld az összes hajót .txt-be és nyomd meg a <b>🧹 Böngésző tárhely ürítése</b> gombot, majd importáld vissza a fájlokat.';
+  toast('❌ Mentés sikertelen — tárhely megtelt, de .txt letöltve','var(--red)');
+}
+
 
 // ============================================================
 // COMMANDER FORM
@@ -504,8 +823,8 @@ get('btn-save-cmd').addEventListener('click',function(){
   if(!name||isNaN(points)){toast('❌ Töltsd ki: Név, Pontérték','var(--red)');return;}
   var obj={name:name,points:points,faction:get('cmd-faction').value.trim(),type:get('cmd-type').value.trim(),desc:get('cmd-desc').value,_type:'commander'};
   var eid=get('edit-cmd-id').value;
-  if(eid){ var idx=commanders.findIndex(function(x){return x.id===eid;}); if(idx!==-1){commanders[idx]=Object.assign(commanders[idx],obj);saveShips();expCmd(commanders[idx]);clearCmdForm();renderDevCmds();toast('✅ "'+name+'" frissítve','var(--green)');} }
-  else{ var cmd=Object.assign({id:gid()},obj);commanders.push(cmd);saveShips();expCmd(cmd);expManifest();clearCmdForm();renderDevCmds();toast('✅ "'+name+'" mentve','var(--green)'); }
+  if(eid){ var idx=commanders.findIndex(function(x){return x.id===eid;}); if(idx!==-1){commanders[idx]=Object.assign(commanders[idx],obj);saveShips();expCmd(commanders[idx]);clearCmdForm();renderDevCmds();renderStorageStatus();toast('✅ "'+name+'" frissítve','var(--green)');} }
+  else{ var cmd=Object.assign({id:gid()},obj);commanders.push(cmd);saveShips();expCmd(cmd);expManifest();clearCmdForm();renderDevCmds();renderStorageStatus();toast('✅ "'+name+'" mentve','var(--green)'); }
 });
 
 // ============================================================
@@ -543,7 +862,7 @@ function renderDevShips() {
       +'</div></div></div>';
   }).join('');
   el.querySelectorAll('.dev-edit-ship').forEach(function(btn){btn.addEventListener('click',function(){startEditShip(btn.dataset.sid);});});
-  el.querySelectorAll('.dev-del-ship').forEach(function(btn){btn.addEventListener('click',function(){ if(!confirm('Törlöd?')) return; var delShip=ships.find(function(x){return x.id===btn.dataset.sid;}); ships=ships.filter(function(s){return s.id!==btn.dataset.sid;}); fleets.forEach(function(f){f.fleet=f.fleet.filter(function(e){return e.shipId!==btn.dataset.sid;});}); localStorage.setItem('bfg_fleets',JSON.stringify(fleets)); saveShips(); if(delShip&&delShip.unofficial){expUnofficialManifest();}else{expManifest();} renderDevShips(); toast('🗑️ Hajó törölve','#c8b840'); });});
+  el.querySelectorAll('.dev-del-ship').forEach(function(btn){btn.addEventListener('click',function(){ if(!confirm('Törlöd?')) return; var delShip=ships.find(function(x){return x.id===btn.dataset.sid;}); ships=ships.filter(function(s){return s.id!==btn.dataset.sid;}); fleets.forEach(function(f){f.fleet=f.fleet.filter(function(e){return e.shipId!==btn.dataset.sid;});}); localStorage.setItem('bfg_fleets',JSON.stringify(fleets)); saveShips(); if(delShip&&delShip.unofficial){expUnofficialManifest();}else{expManifest();} renderDevShips(); renderStorageStatus(); toast('🗑️ Hajó törölve','#c8b840'); });});
   el.querySelectorAll('.dev-dl-ship').forEach(function(btn){btn.addEventListener('click',function(){var s=ships.find(function(x){return x.id===btn.dataset.sid;}); if(s) expShip(s);});});
 }
 get('dev-faction-filter').addEventListener('change',renderDevShips);
@@ -571,12 +890,12 @@ function renderDevCmds() {
       +'</div></div>';
   }).join('');
   el.querySelectorAll('.dev-edit-cmd').forEach(function(btn){btn.addEventListener('click',function(){startEditCmd(btn.dataset.cid);});});
-  el.querySelectorAll('.dev-del-cmd').forEach(function(btn){btn.addEventListener('click',function(){ if(!confirm('Törlöd?')) return; commanders=commanders.filter(function(c){return c.id!==btn.dataset.cid;}); fleets.forEach(function(f){f.commanders=f.commanders.filter(function(x){return x!==btn.dataset.cid;});}); localStorage.setItem('bfg_fleets',JSON.stringify(fleets)); saveShips(); expManifest(); renderDevCmds(); toast('🗑️ Commander törölve','#c8b840'); });});
+  el.querySelectorAll('.dev-del-cmd').forEach(function(btn){btn.addEventListener('click',function(){ if(!confirm('Törlöd?')) return; commanders=commanders.filter(function(c){return c.id!==btn.dataset.cid;}); fleets.forEach(function(f){f.commanders=f.commanders.filter(function(x){return x!==btn.dataset.cid;});}); localStorage.setItem('bfg_fleets',JSON.stringify(fleets)); saveShips(); expManifest(); renderDevCmds(); renderStorageStatus(); toast('🗑️ Commander törölve','#c8b840'); });});
   el.querySelectorAll('.dev-dl-cmd').forEach(function(btn){btn.addEventListener('click',function(){var c=commanders.find(function(x){return x.id===btn.dataset.cid;}); if(c) expCmd(c);});});
 }
 get('dev-cmd-faction-filter').addEventListener('change',renderDevCmds);
 
-loadAll(); renderDevShips(); renderDevCmds(); renderWeapons(); renderWg(); renderVariants(); autoLoad();
+loadAll(); renderDevShips(); renderDevCmds(); renderWeapons(); renderWg(); renderVariants(); renderStorageStatus(); autoLoad();
 </script>
 </body>
 </html>
