@@ -33,7 +33,8 @@
     "MARS_CLASS_BATTLECRUISER",
     "_STRONGHOLD_COMMERCE_VESSEL",
     "_BASTION_COMMERCE_VESSEL",
-    "_CITADEL_COMMERCE_VESSEL"
+    "_CITADEL_COMMERCE_VESSEL",
+    "WARSPHERE"
   ],
   "commanders": [
     "One_extra_re_roll",
