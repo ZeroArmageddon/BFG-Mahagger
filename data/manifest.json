@@ -34,7 +34,8 @@
     "STRONGHOLD_COMMERCE_VESSEL",
     "BASTION_COMMERCE_VESSEL",
     "CITADEL_COMMERCE_VESSEL",
-    "WARSPHERE"
+    "WARSPHERE",
+    "KOR_CASTE_ORBITAL_CITY"
   ],
   "commanders": [
     "One_extra_re_roll",
