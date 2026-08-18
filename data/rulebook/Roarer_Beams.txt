@@ -1,0 +1,6 @@
+{
+  "id": "_msz6c9gr3m6ro",
+  "title": "Roarer Beams",
+  "category": "Weapon",
+  "content": "<div><span style=\"color: var(--txt);\">Roarer beams are lances that can cause multiple hits. They behave the same way as</span></div><div><span style=\"font-size: 14.79px;\">Eldar Pulsar Lances, but each subsequent hit suffers a cumulative</span></div><div><span style=\"font-size: 14.79px;\">-1 to hit (4+, 5+, 6). They can only inflict a maximum of 3 hits.</span></div>"
+}

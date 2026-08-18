@@ -1,0 +1,6 @@
+{
+  "id": "_msz6du08aq5r1",
+  "title": "Radiation Bombardment Cannon",
+  "category": "Weapon",
+  "content": "<div><span style=\"color: var(--txt);\">Place D3 Blast Markers on the target within this weapons range and firing arc.</span></div>"
+}

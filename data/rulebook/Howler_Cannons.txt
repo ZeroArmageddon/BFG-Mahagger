@@ -1,0 +1,6 @@
+{
+  "id": "_msz6bslpeo2xn",
+  "title": "Howler Cannons",
+  "category": "Weapon",
+  "content": "<div><span style=\"color: var(--txt);\">Howler cannons fire massive calibre, and brutal barrages of ordnance to overwhelm</span></div><div><span style=\"font-size: 14.79px;\">their targets through sheer weight of fire. Howler cannons function exactly like weapon</span></div><div><span style=\"font-size: 14.79px;\">batteries, but when shooting in the range bracket from 0-15 cm the Rak’Gol player may</span></div><div><span style=\"font-size: 14.79px;\">roll an additional dice for every 6 rolled. The additional dice rolled cannot itself cause</span></div><div><span style=\"font-size: 14.79px;\">more dice to be rolled. Furthermore, enemy ordnance is hit on a 4+.</span></div>"
+}

@@ -1,0 +1,6 @@
+{
+  "id": "_msz6de6versfy",
+  "title": "Bloodflayers",
+  "category": "Ordanance",
+  "content": "<div><span style=\"color: var(--txt);\">Bloodflayers function in the same way as standard Imperial or Chaos Assault boats.</span></div>"
+}
