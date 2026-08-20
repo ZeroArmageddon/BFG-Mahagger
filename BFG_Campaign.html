@@ -130,6 +130,26 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
 .hp-fill.low{background:var(--orange);}.hp-fill.crit{background:var(--red);}
 .hp-ctrl{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap;}
 .hp-ctrl input{width:56px;padding:.25rem .38rem;background:var(--inp);border:1px solid #333;color:var(--txt);border-radius:4px;font-size:.85rem;text-align:center;}
+.wg-row{display:flex;align-items:center;gap:.28rem;font-size:.76rem;margin-top:.18rem;}
+.wg-lbl{color:var(--dim);}.wg-pts-lbl{color:var(--gold);font-size:.71rem;}
+.wqb{background:var(--card);border:1px solid var(--gdim);color:var(--txt);width:19px;height:19px;border-radius:3px;cursor:pointer;font-size:.78rem;display:flex;align-items:center;justify-content:center;line-height:1;}
+.wqn{min-width:14px;text-align:center;font-size:.76rem;}
+.var-select-row{display:flex;align-items:center;gap:.4rem;margin-top:.22rem;font-size:.78rem;flex-wrap:wrap;}
+.var-select-row label{color:var(--dim);}
+.var-select-row select{padding:.22rem .4rem;background:var(--card);border:1px solid var(--teal);color:#4ad9c9;border-radius:4px;font-size:.76rem;max-width:160px;}
+.var-badge{background:#0f1a18;color:#4ad9c9;border:1px solid var(--teal);padding:.1rem .35rem;border-radius:3px;font-size:.7rem;font-weight:bold;}
+.crit-tbl{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:.6rem;}
+.crit-tbl thead{background:#0d0d15;}
+.crit-tbl th{padding:.32rem .45rem;text-align:left;color:var(--gold);font-size:.69rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--gdim);}
+.crit-tbl th:first-child,.crit-tbl th:nth-child(2){text-align:center;}
+.crit-tbl td{padding:.3rem .45rem;border-bottom:1px solid #1a1a28;vertical-align:middle;}
+.crit-tbl tr:nth-child(even) td{background:#0d0d16;}
+.cr{text-align:center;font-weight:bold;color:var(--gold);width:30px;}.cd{text-align:center;color:var(--red);font-weight:bold;width:40px;}
+.cc{display:flex;align-items:center;gap:.2rem;width:68px;}
+.ccb{background:var(--inp);border:1px solid #333;color:var(--txt);width:19px;height:19px;border-radius:3px;cursor:pointer;font-size:.76rem;display:flex;align-items:center;justify-content:center;}
+.ccn{min-width:14px;text-align:center;font-size:.78rem;font-weight:bold;}
+.fires{display:flex;gap:1px;flex-wrap:wrap;max-width:85px;}.fire{font-size:.78rem;line-height:1;}
+.crit-nm{font-weight:bold;}
 .log-meta{font-size:.75rem;color:var(--dim);margin-bottom:.3rem;}
 .log-result{font-size:.85rem;}
 
@@ -156,15 +176,13 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
     <a class="nb" href="BFG_Dev.html">🔧 Developer</a>
     <a class="nb" href="BFG_Rulebook.html">📖 Rulebook</a>
     <a class="nb active" href="BFG_Campaign.html">🌌 Campaign</a>
+    <a class="nb" href="BFG_Campaign_Fleet.html">🚀 Campaign Flotta</a>
   </div>
 </nav>
 
 <div class="tab-bar">
   <button class="ctab active" data-tab="map">🗺️ Térkép</button>
   <button class="ctab" data-tab="players">👥 Játékosok</button>
-  <button class="ctab" data-tab="refits">🎲 Refitek</button>
-  <button class="ctab" data-tab="upgrades">🛠️ Upgrade-ek</button>
-  <button class="ctab" data-tab="fleets">⚔️ Flották</button>
   <button class="ctab" data-tab="battle">💥 Csata</button>
   <button class="ctab" data-tab="log">📜 Battle Log</button>
   <button class="ctab" data-tab="data">📁 Adatkezelés</button>
@@ -218,115 +236,6 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
     <div class="card">
       <h2>👥 Játékosok</h2>
       <div id="player-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================ REFITS ============================================================ -->
-<div class="cpage" id="page-refits">
-  <div class="wrap">
-    <div class="card purple">
-      <h2 id="refit-form-title">➕ Új Refit</h2>
-      <input type="hidden" id="edit-refit-id">
-      <div class="frow">
-        <div class="fg" style="flex:2;"><label>Refit neve *</label><input type="text" id="refit-name"></div>
-        <div class="fg"><label>Frakció *</label><input type="text" id="refit-faction" placeholder="pl. Imperial Navy"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Típus *</label><input type="text" id="refit-type" placeholder="pl. Hull, Engine, Weapon"></div>
-        <div class="fg"><label>Dobási érték</label><input type="number" id="refit-roll" value="1" min="1" placeholder="pl. 1, 2, 3..."></div>
-      </div>
-      <div class="fg"><label>Leírás</label><textarea id="refit-desc" placeholder="Mit csinál ez a refit..."></textarea></div>
-      <div class="frow">
-        <div class="fg"><label>+HP</label><input type="number" id="refit-hits" value="0" step="1"></div>
-        <div class="fg"><label>+Shields</label><input type="number" id="refit-shields" value="0" step="1"></div>
-        <div class="fg"><label>+Speed</label><input type="number" id="refit-speed" value="0" step="1"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>+Turns</label><input type="number" id="refit-turns" value="0" step="1"></div>
-        <div class="fg"><label>+Armour <span style="color:var(--dim);font-size:.7rem;">(negatív jobb)</span></label><input type="number" id="refit-armour" value="0" step="1"></div>
-        <div class="fg"><label>+Turret</label><input type="number" id="refit-turret" value="0" step="1"></div>
-      </div>
-      <p style="color:var(--dim);font-size:.76rem;margin-bottom:.6rem;">A refitek nem kerülnek campaign pontba — a dobási értékkel a játékosok manuálisan jelölik meg, ha kidobták, és kézzel adják a hajóhoz a Flották fülön.</p>
-      <div class="brow">
-        <button class="btn bp" id="btn-save-refit">💾 Mentés</button>
-        <button class="btn bgh" id="btn-cancel-refit" style="display:none;">Mégse</button>
-      </div>
-    </div>
-    <div class="card purple">
-      <h2>🎲 Refit Táblák</h2>
-      <div class="frow"><select id="refit-faction-filter"><option value="">Minden frakció</option></select></div>
-      <div id="refit-list-by-type"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================ UPGRADES ============================================================ -->
-<div class="cpage" id="page-upgrades">
-  <div class="wrap">
-    <div class="card teal">
-      <h2 id="upgrade-form-title">➕ Új Upgrade</h2>
-      <input type="hidden" id="edit-upgrade-id">
-      <div class="frow">
-        <div class="fg" style="flex:2;"><label>Upgrade neve *</label><input type="text" id="upgrade-name"></div>
-        <div class="fg"><label>Frakció *</label><input type="text" id="upgrade-faction" placeholder="pl. Imperial Navy"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Ár (campaign pont)</label><input type="number" id="upgrade-cost" value="0" min="0"></div>
-        <div class="fg"><label>Max db / hajó</label><input type="number" id="upgrade-max" value="1" min="1"></div>
-      </div>
-      <div class="fg"><label>Leírás</label><textarea id="upgrade-desc" placeholder="Mit csinál ez az upgrade..."></textarea></div>
-      <div class="frow">
-        <div class="fg"><label>+HP</label><input type="number" id="upgrade-hits" value="0" step="1"></div>
-        <div class="fg"><label>+Shields</label><input type="number" id="upgrade-shields" value="0" step="1"></div>
-        <div class="fg"><label>+Speed</label><input type="number" id="upgrade-speed" value="0" step="1"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>+Turns</label><input type="number" id="upgrade-turns" value="0" step="1"></div>
-        <div class="fg"><label>+Armour <span style="color:var(--dim);font-size:.7rem;">(negatív jobb)</span></label><input type="number" id="upgrade-armour" value="0" step="1"></div>
-        <div class="fg"><label>+Turret</label><input type="number" id="upgrade-turret" value="0" step="1"></div>
-      </div>
-      <button type="button" class="loc-check" id="upgrade-grant-toggle" style="border-color:var(--orange);">☐ Fegyvert ad</button>
-      <div id="upgrade-weapon-fields" style="display:none;margin-top:.5rem;padding-top:.5rem;border-top:1px solid #2a2a3a;">
-        <div class="frow">
-          <div class="fg" style="flex:2;"><label>Fegyver neve</label><input type="text" id="upgrade-wpn-name"></div>
-          <div class="fg"><label>Range</label><input type="text" id="upgrade-wpn-range"></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label>FP/Str</label><input type="text" id="upgrade-wpn-fp"></div>
-          <div class="fg"><label>Arc</label><input type="text" id="upgrade-wpn-arc"></div>
-        </div>
-      </div>
-      <div class="brow" style="margin-top:.6rem;">
-        <button class="btn bt" id="btn-save-upgrade">💾 Mentés</button>
-        <button class="btn bgh" id="btn-cancel-upgrade" style="display:none;">Mégse</button>
-      </div>
-    </div>
-    <div class="card teal">
-      <h2>🛠️ Upgrade Katalógus</h2>
-      <div class="frow"><select id="upgrade-faction-filter"><option value="">Minden frakció</option></select></div>
-      <div class="grid" id="upgrade-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================ FLEETS ============================================================ -->
-<div class="cpage" id="page-fleets">
-  <div class="wrap">
-    <div class="card">
-      <h2>⚔️ Kampány Flották</h2>
-      <div class="frow"><select id="fleet-player-select"><option value="">— Válassz játékost —</option></select></div>
-    </div>
-    <div class="card" id="fleet-detail-card" style="display:none;">
-      <div class="sec-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem;">
-        <span id="fleet-player-title" style="color:var(--gold);font-weight:bold;"></span>
-        <span id="fleet-player-points" style="color:var(--green);font-weight:bold;"></span>
-      </div>
-      <div class="brow" style="margin-bottom:.7rem;">
-        <button class="btn bgr bsm" id="btn-add-points">💰 Pontok hozzáadása</button>
-        <button class="btn bg bsm" id="btn-buy-ship">🚀 Hajó vásárlása</button>
-      </div>
-      <div id="campaign-fleet-list"></div>
     </div>
   </div>
 </div>
@@ -409,41 +318,6 @@ nav{display:flex;align-items:center;background:var(--card);border-bottom:2px sol
   </div>
 </div>
 
-<!-- BUY SHIP MODAL -->
-<div class="modal-bg" id="buyship-modal">
-  <div class="modal">
-    <div class="mhdr"><h2>🚀 Hajó vásárlása</h2><button class="mx" id="buyship-close">×</button></div>
-    <div class="mbody">
-      <div class="frow">
-        <select id="buyship-faction-filter"><option value="">Minden frakció</option></select>
-      </div>
-      <div class="grid" id="buyship-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- APPLY REFIT MODAL -->
-<div class="modal-bg" id="applyrefit-modal">
-  <div class="modal">
-    <div class="mhdr"><h2>🎲 Refit alkalmazása — <span id="applyrefit-ship-name"></span></h2><button class="mx" id="applyrefit-close">×</button></div>
-    <div class="mbody">
-      <p style="color:var(--dim);font-size:.8rem;margin-bottom:.7rem;">Ha a játékos kidobta a refit dobási értékét, itt lehet hozzáadni a hajóhoz. Ingyenes, nem kerül campaign pontba.</p>
-      <div id="applyrefit-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- CAMPAIGN COMMANDER ON BOARD MODAL -->
-<div class="modal-bg" id="campaign-onboard-modal">
-  <div class="modal purple">
-    <div class="mhdr"><h2 class="purple">👑 Commander a fedélzeten — <span id="campaign-onboard-ship-name"></span></h2><button class="mx" id="campaign-onboard-close">×</button></div>
-    <div class="mbody">
-      <p style="color:var(--dim);font-size:.8rem;margin-bottom:.7rem;">A játékos karaktere (👤) és a rosterből elérhető commanderek egyaránt választhatók. Egy commander egyszerre csak egy hajón lehet ennél a flottánál.</p>
-      <div id="campaign-onboard-list"></div>
-    </div>
-  </div>
-</div>
-
 <script>
 var IS_LOCAL=location.protocol==='file:';
 var players=[], planets=[], connections=[], upgrades=[], refits=[], campaignFleets=[], battleLog=[];
@@ -487,17 +361,39 @@ function saveCampaignBattle(){
 }
 
 // ---- TAB NAV ----
+// Re-reads the data that other pages (Developer, Campaign Fleet Builder) may
+// have changed in localStorage while this page stayed open — without this,
+// switching to Battle mode after buying a ship on the Fleet Builder page
+// would show stale data until a full reload.
+function refreshSharedData(){
+  try{players=JSON.parse(localStorage.getItem('bfg_campaign_players')||'[]');}catch(e){}
+  try{campaignFleets=JSON.parse(localStorage.getItem('bfg_campaign_fleets')||'[]');}catch(e){}
+  try{refits=JSON.parse(localStorage.getItem('bfg_campaign_refits')||'[]');}catch(e){}
+  try{upgrades=JSON.parse(localStorage.getItem('bfg_campaign_upgrades')||'[]');}catch(e){}
+  try{ships=JSON.parse(localStorage.getItem('bfg_ships')||'[]');}catch(e){}
+  try{commanders=JSON.parse(localStorage.getItem('bfg_commanders')||'[]');}catch(e){}
+}
 document.querySelectorAll('.ctab').forEach(function(tab){
   tab.addEventListener('click',function(){
     document.querySelectorAll('.ctab').forEach(function(t){t.classList.remove('active');});
     document.querySelectorAll('.cpage').forEach(function(p){p.classList.remove('active');});
     tab.classList.add('active');
     get('page-'+tab.dataset.tab).classList.add('active');
+    refreshSharedData();
     if(tab.dataset.tab==='map') renderMap();
+    if(tab.dataset.tab==='players') renderPlayers();
     if(tab.dataset.tab==='log') renderLogSelectors();
-    if(tab.dataset.tab==='refits') renderRefits();
-    if(tab.dataset.tab==='battle') renderBattleFleetSelect();
+    if(tab.dataset.tab==='battle'){ renderBattleFleetSelect(); if(activeBattlePlayerId) renderCampaignBattle(); }
   });
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState!=='visible') return;
+  refreshSharedData();
+  var activeTab=document.querySelector('.ctab.active');
+  if(!activeTab) return;
+  if(activeTab.dataset.tab==='map') renderMap();
+  if(activeTab.dataset.tab==='players') renderPlayers();
+  if(activeTab.dataset.tab==='battle'){ renderBattleFleetSelect(); if(activeBattlePlayerId) renderCampaignBattle(); }
 });
 
 // ============================================================
@@ -600,7 +496,6 @@ function renderPlayers(){
 }
 function renderPlayerSelects(){
   var opts='<option value="">— Válassz játékost —</option>'+players.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('');
-  get('fleet-player-select').innerHTML=opts;
   get('planet-owner').innerHTML='<option value="">— Senki (semleges) —</option>'+players.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('');
   get('log-attacker').innerHTML='<option value="">—</option>'+players.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('');
   get('log-defender').innerHTML='<option value="">—</option>'+players.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('');
@@ -753,183 +648,6 @@ get('btn-delete-planet').addEventListener('click',function(){
   toast('🗑️ Csillag törölve','#c8b840');
 });
 
-// ============================================================
-// REFITS (faction+type tied, roll-value triggered, free — no cost)
-// ============================================================
-function getUniq(arr,key){var r=[];arr.forEach(function(x){var v=x[key]||'';if(v&&r.indexOf(v)<0)r.push(v);});return r.sort();}
-function fillSel(id,vals,cur){var el=get(id);var first=el.options[0]?el.options[0].text:'Minden';el.innerHTML='<option value="">'+first+'</option>'+vals.map(function(v){return '<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(v)+'</option>';}).join('');el.value=cur||'';}
-
-function clearRefitForm(){
-  get('edit-refit-id').value='';
-  ['refit-name','refit-faction','refit-type','refit-desc'].forEach(function(id){get(id).value='';});
-  ['refit-hits','refit-shields','refit-speed','refit-turns','refit-armour','refit-turret'].forEach(function(id){get(id).value='0';});
-  get('refit-roll').value='1';
-  get('refit-form-title').textContent='➕ Új Refit';
-  get('btn-save-refit').textContent='💾 Mentés'; get('btn-cancel-refit').style.display='none';
-}
-function startEditRefit(id){
-  var r=refits.find(function(x){return x.id===id;}); if(!r) return;
-  get('edit-refit-id').value=r.id;
-  get('refit-name').value=r.name; get('refit-faction').value=r.faction||''; get('refit-type').value=r.type||'';
-  get('refit-roll').value=r.roll!==undefined?r.roll:1;
-  get('refit-desc').value=r.desc||'';
-  get('refit-hits').value=r.hitsBonus||0; get('refit-shields').value=r.shieldsBonus||0;
-  get('refit-speed').value=r.speedBonus||0; get('refit-turns').value=r.turnsBonus||0;
-  get('refit-armour').value=r.armourBonus||0; get('refit-turret').value=r.turretBonus||0;
-  get('refit-form-title').textContent='✏️ '+r.name;
-  get('btn-save-refit').textContent='💾 Mentés'; get('btn-cancel-refit').style.display='inline-flex';
-}
-get('btn-cancel-refit').addEventListener('click',clearRefitForm);
-get('btn-save-refit').addEventListener('click',function(){
-  var name=get('refit-name').value.trim(), faction=get('refit-faction').value.trim(), type=get('refit-type').value.trim();
-  if(!name||!faction||!type){toast('❌ Töltsd ki: Név, Frakció, Típus','var(--red)');return;}
-  var obj={name:name,faction:faction,type:type,roll:parseInt(get('refit-roll').value)||1,
-    desc:get('refit-desc').value,
-    hitsBonus:parseInt(get('refit-hits').value)||0, shieldsBonus:parseInt(get('refit-shields').value)||0,
-    speedBonus:parseInt(get('refit-speed').value)||0, turnsBonus:parseInt(get('refit-turns').value)||0,
-    armourBonus:parseInt(get('refit-armour').value)||0, turretBonus:parseInt(get('refit-turret').value)||0};
-  var eid=get('edit-refit-id').value;
-  if(eid){var i=refits.findIndex(function(x){return x.id===eid;});if(i!==-1)refits[i]=Object.assign({id:eid},obj);}
-  else{refits.push(Object.assign({id:gid()},obj));}
-  saveCampaign(); clearRefitForm(); renderRefits();
-  toast('✅ Refit mentve','var(--green)');
-});
-function renderRefits(){
-  var ff=get('refit-faction-filter').value;
-  fillSel('refit-faction-filter',getUniq(refits,'faction'),ff);
-  var list=ff?refits.filter(function(r){return r.faction===ff;}):refits;
-  var el=get('refit-list-by-type');
-  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎲</div><p>Nincs refit. Hozz létre egyet fent!</p></div>';return;}
-  // group by type, each type's list sorted by roll value
-  var types=getUniq(list,'type');
-  el.innerHTML=types.map(function(t){
-    var items=list.filter(function(r){return r.type===t;}).sort(function(a,b){return (a.roll||0)-(b.roll||0);});
-    return '<div style="margin-bottom:1rem;">'
-      +'<div style="color:#a07aee;font-weight:bold;font-size:.9rem;margin-bottom:.45rem;border-bottom:1px solid var(--pdim);padding-bottom:.3rem;">🎲 '+esc(t)+'</div>'
-      +'<div class="grid">'+items.map(function(r){
-        var bonuses=[];
-        if(r.hitsBonus)bonuses.push('+'+r.hitsBonus+'HP');
-        if(r.shieldsBonus)bonuses.push('Shields'+(r.shieldsBonus>0?'+':'')+r.shieldsBonus);
-        if(r.speedBonus)bonuses.push('Speed'+(r.speedBonus>0?'+':'')+r.speedBonus);
-        if(r.turnsBonus)bonuses.push('Turns'+(r.turnsBonus>0?'+':'')+r.turnsBonus);
-        if(r.armourBonus)bonuses.push('Armour'+(r.armourBonus>0?'+':'')+r.armourBonus);
-        if(r.turretBonus)bonuses.push('Turret'+(r.turretBonus>0?'+':'')+r.turretBonus);
-        return '<div class="sc purple"><div class="sc-hdr"><span class="sc-name purple">'+esc(r.name)+'</span><span class="badge bp-b">🎲'+r.roll+'</span></div>'
-          +'<div class="sc-sub">'+esc(r.faction)+'</div>'
-          +(bonuses.length?'<div style="font-size:.74rem;color:#a07aee;margin-bottom:.3rem;">'+esc(bonuses.join(', '))+'</div>':'')
-          +(r.desc?'<div class="sc-sub">'+esc(r.desc.substr(0,80))+(r.desc.length>80?'…':'')+'</div>':'')
-          +'<div class="sc-acts"><button class="btn bgh bsm refit-edit" data-id="'+r.id+'" style="flex:1;">✏️</button><button class="btn bd bsm refit-del" data-id="'+r.id+'" style="flex:1;">🗑️</button></div>'
-          +'</div>';
-      }).join('')+'</div></div>';
-  }).join('');
-  el.querySelectorAll('.refit-edit').forEach(function(b){b.addEventListener('click',function(){startEditRefit(b.dataset.id);});});
-  el.querySelectorAll('.refit-del').forEach(function(b){b.addEventListener('click',function(){
-    if(!confirm('Törlöd?')) return;
-    refits=refits.filter(function(r){return r.id!==b.dataset.id;});
-    saveCampaign(); renderRefits();
-  });});
-}
-get('refit-faction-filter').addEventListener('change',renderRefits);
-
-// ============================================================
-// UPGRADES (faction-tied, costed, wargear-like — stat bonuses AND can grant a weapon)
-// ============================================================
-var upgradeGrantsWeapon=false;
-get('upgrade-grant-toggle').addEventListener('click',function(){
-  upgradeGrantsWeapon=!upgradeGrantsWeapon;
-  this.classList.toggle('checked',upgradeGrantsWeapon);
-  this.textContent=upgradeGrantsWeapon?'✅ Fegyvert ad':'☐ Fegyvert ad';
-  get('upgrade-weapon-fields').style.display=upgradeGrantsWeapon?'block':'none';
-});
-function clearUpgradeForm(){
-  get('edit-upgrade-id').value='';
-  ['upgrade-name','upgrade-faction','upgrade-desc','upgrade-wpn-name','upgrade-wpn-range','upgrade-wpn-fp','upgrade-wpn-arc'].forEach(function(id){get(id).value='';});
-  ['upgrade-cost','upgrade-hits','upgrade-shields','upgrade-speed','upgrade-turns','upgrade-armour','upgrade-turret'].forEach(function(id){get(id).value='0';});
-  get('upgrade-max').value='1';
-  upgradeGrantsWeapon=false;
-  get('upgrade-grant-toggle').classList.remove('checked'); get('upgrade-grant-toggle').textContent='☐ Fegyvert ad';
-  get('upgrade-weapon-fields').style.display='none';
-  get('upgrade-form-title').textContent='➕ Új Upgrade';
-  get('btn-save-upgrade').textContent='💾 Mentés'; get('btn-cancel-upgrade').style.display='none';
-}
-function startEditUpgrade(id){
-  var u=upgrades.find(function(x){return x.id===id;}); if(!u) return;
-  get('edit-upgrade-id').value=u.id;
-  get('upgrade-name').value=u.name; get('upgrade-faction').value=u.faction||'';
-  get('upgrade-cost').value=u.cost||0; get('upgrade-max').value=u.max||1;
-  get('upgrade-desc').value=u.desc||'';
-  get('upgrade-hits').value=u.hitsBonus||0; get('upgrade-shields').value=u.shieldsBonus||0;
-  get('upgrade-speed').value=u.speedBonus||0; get('upgrade-turns').value=u.turnsBonus||0;
-  get('upgrade-armour').value=u.armourBonus||0; get('upgrade-turret').value=u.turretBonus||0;
-  upgradeGrantsWeapon=!!u.grantsWeapon;
-  get('upgrade-grant-toggle').classList.toggle('checked',upgradeGrantsWeapon);
-  get('upgrade-grant-toggle').textContent=upgradeGrantsWeapon?'✅ Fegyvert ad':'☐ Fegyvert ad';
-  get('upgrade-weapon-fields').style.display=upgradeGrantsWeapon?'block':'none';
-  if(u.weapon){
-    get('upgrade-wpn-name').value=u.weapon.name||''; get('upgrade-wpn-range').value=u.weapon.range||'';
-    get('upgrade-wpn-fp').value=u.weapon.fp||''; get('upgrade-wpn-arc').value=u.weapon.arc||'';
-  }
-  get('upgrade-form-title').textContent='✏️ '+u.name;
-  get('btn-save-upgrade').textContent='💾 Mentés'; get('btn-cancel-upgrade').style.display='inline-flex';
-}
-get('btn-cancel-upgrade').addEventListener('click',clearUpgradeForm);
-get('btn-save-upgrade').addEventListener('click',function(){
-  var name=get('upgrade-name').value.trim(), faction=get('upgrade-faction').value.trim();
-  if(!name||!faction){toast('❌ Töltsd ki: Név, Frakció','var(--red)');return;}
-  var obj={name:name,faction:faction,cost:parseInt(get('upgrade-cost').value)||0,max:parseInt(get('upgrade-max').value)||1,
-    desc:get('upgrade-desc').value,
-    hitsBonus:parseInt(get('upgrade-hits').value)||0, shieldsBonus:parseInt(get('upgrade-shields').value)||0,
-    speedBonus:parseInt(get('upgrade-speed').value)||0, turnsBonus:parseInt(get('upgrade-turns').value)||0,
-    armourBonus:parseInt(get('upgrade-armour').value)||0, turretBonus:parseInt(get('upgrade-turret').value)||0,
-    grantsWeapon:upgradeGrantsWeapon,
-    weapon:upgradeGrantsWeapon?{id:gid(),name:get('upgrade-wpn-name').value.trim(),range:get('upgrade-wpn-range').value.trim(),fp:get('upgrade-wpn-fp').value.trim(),arc:get('upgrade-wpn-arc').value.trim(),locations:[]}:null};
-  var eid=get('edit-upgrade-id').value;
-  if(eid){var i=upgrades.findIndex(function(x){return x.id===eid;});if(i!==-1){ if(obj.weapon&&upgrades[i].weapon&&upgrades[i].weapon.id) obj.weapon.id=upgrades[i].weapon.id; upgrades[i]=Object.assign({id:eid},obj); }}
-  else{upgrades.push(Object.assign({id:gid()},obj));}
-  saveCampaign(); clearUpgradeForm(); renderUpgrades();
-  toast('✅ Upgrade mentve','var(--green)');
-});
-function renderUpgrades(){
-  var ff=get('upgrade-faction-filter').value;
-  fillSel('upgrade-faction-filter',getUniq(upgrades,'faction'),ff);
-  var list=ff?upgrades.filter(function(u){return u.faction===ff;}):upgrades;
-  var el=get('upgrade-list');
-  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🛠️</div><p>Nincs upgrade. Hozz létre egyet fent!</p></div>';return;}
-  el.innerHTML=list.map(function(u){
-    var bonuses=[];
-    if(u.hitsBonus)bonuses.push('+'+u.hitsBonus+'HP');
-    if(u.shieldsBonus)bonuses.push('Shields'+(u.shieldsBonus>0?'+':'')+u.shieldsBonus);
-    if(u.speedBonus)bonuses.push('Speed'+(u.speedBonus>0?'+':'')+u.speedBonus);
-    if(u.turnsBonus)bonuses.push('Turns'+(u.turnsBonus>0?'+':'')+u.turnsBonus);
-    if(u.armourBonus)bonuses.push('Armour'+(u.armourBonus>0?'+':'')+u.armourBonus);
-    if(u.turretBonus)bonuses.push('Turret'+(u.turretBonus>0?'+':'')+u.turretBonus);
-    var wpnTag=u.grantsWeapon&&u.weapon?'<div style="font-size:.72rem;color:var(--orange);margin-bottom:.3rem;">🔫 '+esc(u.weapon.name||'')+'</div>':'';
-    return '<div class="sc"><div class="sc-hdr"><span class="sc-name">'+esc(u.name)+'</span><span class="badge bt-b">'+u.cost+' pt</span></div>'
-      +'<div class="sc-sub">'+esc(u.faction)+' · max '+ (u.max||1) +'×</div>'
-      +(bonuses.length?'<div style="font-size:.74rem;color:#4ad9c9;margin-bottom:.3rem;">'+esc(bonuses.join(', '))+'</div>':'')
-      +wpnTag
-      +(u.desc?'<div class="sc-sub">'+esc(u.desc.substr(0,90))+(u.desc.length>90?'…':'')+'</div>':'')
-      +'<div class="sc-acts"><button class="btn bgh bsm upgrade-edit" data-id="'+u.id+'" style="flex:1;">✏️</button><button class="btn bd bsm upgrade-del" data-id="'+u.id+'" style="flex:1;">🗑️</button></div>'
-      +'</div>';
-  }).join('');
-  el.querySelectorAll('.upgrade-edit').forEach(function(b){b.addEventListener('click',function(){startEditUpgrade(b.dataset.id);});});
-  el.querySelectorAll('.upgrade-del').forEach(function(b){b.addEventListener('click',function(){
-    if(!confirm('Törlöd?')) return;
-    upgrades=upgrades.filter(function(u){return u.id!==b.dataset.id;});
-    saveCampaign(); renderUpgrades();
-  });});
-}
-get('upgrade-faction-filter').addEventListener('change',renderUpgrades);
-
-// ============================================================
-// CAMPAIGN FLEETS
-// ============================================================
-var activeFleetPlayerId=null;
-get('fleet-player-select').addEventListener('change',function(){
-  activeFleetPlayerId=this.value||null;
-  get('fleet-detail-card').style.display=activeFleetPlayerId?'block':'none';
-  if(activeFleetPlayerId) renderCampaignFleet();
-});
 function getPlayerFleet(pid){
   var f=campaignFleets.find(function(x){return x.playerId===pid;});
   if(!f){ f={playerId:pid, ships:[]}; campaignFleets.push(f); }
@@ -941,6 +659,116 @@ function shipUpgradeCost(entry){
   (entry.upgradeIds||[]).forEach(function(uid){ var u=upgrades.find(function(x){return x.id===uid;}); if(u) t+=u.cost; });
   return t;
 }
+// ---- ported from the main Fleet Builder (BFG_App.html), adapted for campaign ----
+function campResolveShip(entry){
+  var ship=ships.find(function(s){return s.id===entry.shipId;}); if(!ship) return null;
+  if(entry.variantId&&ship.variants){
+    var v=ship.variants.find(function(x){return x.id===entry.variantId;});
+    if(v) return Object.assign({},ship,{name:ship.name+' ('+v.name+')',points:v.points||ship.points,hits:v.hits||ship.hits,stats:v.stats||ship.stats,weapons:v.weapons&&v.weapons.length?v.weapons:ship.weapons,wargear:v.wargear&&v.wargear.length?v.wargear:ship.wargear,_varName:v.name,_baseShip:ship});
+  }
+  return ship;
+}
+function campShipEntryPts(entry){
+  var ship=campResolveShip(entry); if(!ship) return 0;
+  var pts=ship.points;
+  if(entry.wargear&&ship.wargear) Object.entries(entry.wargear).forEach(function(kv){var wg=ship.wargear.find(function(w){return w.id===kv[0];});if(wg) pts+=wg.pts*kv[1];});
+  if(entry.weapons&&ship.weapons) Object.entries(entry.weapons).forEach(function(kv){var wp=ship.weapons.find(function(w){return w.id===kv[0];});if(wp&&wp.optional) pts+=(wp.pts||0)*kv[1];});
+  if(entry.weaponGroups&&ship.weaponGroups) ship.weaponGroups.forEach(function(g){
+    var sel=entry.weaponGroups[g.id]||{};
+    (g.weapons||[]).forEach(function(w){ var qty=sel[w.id]||0; pts+=(w.pts||0)*qty; });
+  });
+  pts+=shipUpgradeCost(entry); // refits are free — no cost added
+  return pts;
+}
+function campStripLocations(name){return String(name||'').replace(/\b(Port|Starboard|Dorsal|Prow|Thorax)\b/gi,'').replace(/\s+/g,' ').trim();}
+function campBaseMaxHp(ship){return ship.hits?parseInt(ship.hits):8;}
+// Hits/stat bonuses stack from THREE sources in campaign: the ship's own
+// selected wargear, applied (free) refits, and purchased upgrades.
+function campGetEntryBonus(ship,entry,field){
+  var bonus=0;
+  if(ship.wargear&&entry.wargear) Object.entries(entry.wargear).forEach(function(kv){var wg=ship.wargear.find(function(w){return w.id===kv[0];});if(wg&&wg[field]) bonus+=wg[field]*kv[1];});
+  (entry.refitIds||[]).forEach(function(rid){var r=refits.find(function(x){return x.id===rid;});if(r&&r[field]) bonus+=r[field];});
+  (entry.upgradeIds||[]).forEach(function(uid){var u=upgrades.find(function(x){return x.id===uid;});if(u&&u[field]) bonus+=u[field];});
+  return bonus;
+}
+function campGetMaxHp(ship,entry){return campBaseMaxHp(ship)+campGetEntryBonus(ship,entry,'hitsBonus');}
+function campApplyStatBonus(str,bonus){
+  if(!str||!bonus) return str;
+  var m=String(str).match(/^(-?\d+(?:\.\d+)?)(.*)$/);
+  if(!m) return str;
+  return (parseFloat(m[1])+bonus)+m[2];
+}
+function campGetEffectiveStructuredStats(ship,entry){
+  var fields=[['speed','Speed','speedBonus'],['turns','Turns','turnsBonus'],['shields','Shields','shieldsBonus'],['armour','Armour','armourBonus'],['turret','Turret','turretBonus']];
+  var out=[];
+  fields.forEach(function(f){
+    var base=ship[f[0]]; if(!base) return;
+    var bonus=campGetEntryBonus(ship,entry,f[2]);
+    out.push({label:f[1],value:bonus?campApplyStatBonus(base,bonus):base,boosted:!!bonus});
+  });
+  return out;
+}
+// Merges base weapons + selected optional weapons + weapon-group picks +
+// wargear-granted weapons + upgrade-granted weapons into one Nx-deduped list.
+function campBuildDisplayWeapons(ship,entry){
+  var map={};
+  function add(w,qty,extra){
+    if(qty===undefined) qty=1;
+    if(qty<=0) return;
+    var key=w.id||w.name;
+    if(!map[key]) map[key]={w:Object.assign({},w,extra||{}),qty:0};
+    map[key].qty+=qty;
+  }
+  (ship.weapons||[]).forEach(function(w){
+    if(!w.optional){ add(w,1); }
+    else { add(w,(entry.weapons||{})[w.id]||0); }
+  });
+  if(ship.weaponGroups) ship.weaponGroups.forEach(function(g){
+    (g.weapons||[]).forEach(function(w){ var sel=(entry.weaponGroups||{})[g.id]||{}; add(w,sel[w.id]||0,{_groupName:g.name}); });
+  });
+  if(ship.wargear) ship.wargear.forEach(function(wg){
+    var qty=(entry.wargear||{})[wg.id]||0;
+    if(qty>0&&wg.grantsWeapon&&wg.weapon&&wg.weapon.name) add(Object.assign({},wg.weapon,{_fromWargear:true}),qty);
+  });
+  (entry.upgradeIds||[]).forEach(function(uid){
+    var u=upgrades.find(function(x){return x.id===uid;});
+    if(u&&u.grantsWeapon&&u.weapon&&u.weapon.name) add(Object.assign({},u.weapon,{_fromUpgrade:true}),1);
+  });
+  var list=[];
+  Object.keys(map).forEach(function(k){var item=map[k],w2=Object.assign({},item.w);if(item.qty>1)w2.name=item.qty+'x '+w2.name;list.push(w2);});
+  return list;
+}
+function campBuildWpnTable(weapons,clickable,battleKey){
+  if(!weapons||!weapons.length) return '<p style="color:var(--dim);font-size:.82rem;">Nincs fegyver adat.</p>';
+  var hasReloadCol=battleKey&&weapons.some(function(w){return w.reloadable;});
+  var wst=(battleKey&&campaignBattleState[battleKey]&&campaignBattleState[battleKey].weaponStatus)||{};
+  var table='<table style="width:100%;min-width:'+(hasReloadCol?580:480)+'px;border-collapse:collapse;font-size:.8rem;"><thead><tr style="background:#0d0d15;">'
+    +'<th style="padding:.3rem .5rem;text-align:left;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Armament</th>'
+    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Range</th>'
+    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">FP/Str</th>'
+    +'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Arc</th>'
+    +'<th style="padding:.3rem .5rem;text-align:left;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Loc</th>'
+    +(hasReloadCol?'<th style="padding:.3rem .5rem;text-align:center;color:var(--gold);font-size:.69rem;text-transform:uppercase;border-bottom:2px solid var(--gdim);white-space:nowrap;">Állapot</th>':'')
+    +'</tr></thead><tbody>'
+    +weapons.map(function(w,i){
+      var locs=(w.locations||[]).join(', ');
+      var optBadge=w.optional?'<span style="background:var(--orange);color:#0a0a0f;padding:.07rem .25rem;border-radius:2px;font-size:.63rem;font-weight:bold;margin-left:.25rem;white-space:nowrap;">+'+(w.pts||0)+'pts</span>':'';
+      var fromWgBadge=w._fromWargear?'<span style="background:var(--teal);color:#fff;padding:.07rem .25rem;border-radius:2px;font-size:.6rem;font-weight:bold;margin-left:.25rem;white-space:nowrap;">⚙️ wargear</span>':'';
+      var fromUpgBadge=w._fromUpgrade?'<span style="background:var(--teal);color:#fff;padding:.07rem .25rem;border-radius:2px;font-size:.6rem;font-weight:bold;margin-left:.25rem;white-space:nowrap;">🛠️ upgrade</span>':'';
+      var groupBadge=w._groupName?'<span style="background:var(--purple);color:#fff;padding:.07rem .25rem;border-radius:2px;font-size:.6rem;font-weight:bold;margin-left:.25rem;white-space:nowrap;">🎯 '+esc(w._groupName)+(w.pts?' +'+w.pts+'pts':'')+'</span>':'';
+      var nameCell=clickable?'<span class="wpn-link" data-name="'+esc(campStripLocations(w.name||''))+'" style="cursor:pointer;text-decoration:underline dotted;">'+esc(w.name||'')+'</span>':esc(w.name||'');
+      var reloadCell='';
+      if(hasReloadCol){
+        if(w.reloadable&&w.id){
+          var fired=wst[w.id]==='fired';
+          reloadCell='<td style="padding:.3rem .5rem;text-align:center;white-space:nowrap;"><button type="button" class="camp-wpn-status-btn" data-key="'+battleKey+'" data-wid="'+w.id+'" style="padding:.2rem .5rem;border-radius:3px;border:1px solid '+(fired?'var(--red)':'var(--green)')+';background:'+(fired?'#2a0a0a':'#0a2a0a')+';color:'+(fired?'var(--red)':'var(--green)')+';font-size:.72rem;cursor:pointer;font-weight:bold;">'+(fired?'🔴 Kilőve':'🟢 Betöltve')+'</button></td>';
+        } else { reloadCell='<td style="padding:.3rem .5rem;text-align:center;color:var(--dim);">—</td>'; }
+      }
+      return '<tr style="'+(i%2===1?'background:#0d0d16;':'')+'"><td style="padding:.3rem .5rem;font-weight:bold;color:var(--gold);white-space:nowrap;">'+nameCell+optBadge+groupBadge+fromWgBadge+fromUpgBadge+'</td><td style="padding:.3rem .5rem;text-align:center;white-space:nowrap;">'+esc(w.range||'—')+'</td><td style="padding:.3rem .5rem;text-align:center;white-space:nowrap;">'+esc(w.fp||'—')+'</td><td style="padding:.3rem .5rem;text-align:center;white-space:nowrap;">'+esc(w.arc||'—')+'</td><td style="padding:.3rem .5rem;color:var(--dim);font-size:.75rem;white-space:nowrap;">'+esc(locs||'—')+'</td>'+reloadCell+'</tr>';
+    }).join('')+'</tbody></table>';
+  return '<div style="overflow-x:auto;">'+table+'</div>';
+}
+
 // Resolves a commander-on-board id, which may be a real roster commander OR a
 // player-character (prefixed "player:"+playerId) — the player's own character
 // can be stationed on a ship exactly like any purchased commander.
@@ -955,241 +783,6 @@ function resolveCommanderRef(refId){
   var c=commanders.find(function(x){return x.id===refId;});
   return c?{id:refId, name:c.name, isPlayer:false, points:c.points}:null;
 }
-var fleetUpgradePanelOpen={}; // idx -> bool, collapsed by default (session-only)
-function renderCampaignFleet(){
-  var p=players.find(function(x){return x.id===activeFleetPlayerId;}); if(!p) return;
-  get('fleet-player-title').textContent=p.name+' ('+(p.faction||'—')+')';
-  get('fleet-player-points').textContent='💰 '+(p.points||0)+' pont elérhető';
-  var f=getPlayerFleet(activeFleetPlayerId);
-  var el=get('campaign-fleet-list');
-  if(!f.ships.length){el.innerHTML='<div class="empty"><div class="empty-icon">🚀</div><p>Nincs még hajó ebben a flottában.</p></div>';return;}
-  el.innerHTML=f.ships.map(function(entry,idx){
-    var ship=ships.find(function(s){return s.id===entry.shipId;});
-    if(!ship) return '';
-    var upgCost=shipUpgradeCost(entry);
-    var refitTags=(entry.refitIds||[]).map(function(rid){
-      var r=refits.find(function(x){return x.id===rid;}); if(!r) return '';
-      return '<span class="fe-upgrade-tag" style="border-color:var(--pdim);color:#a07aee;">🎲 '+esc(r.name)+' <button data-idx="'+idx+'" data-rid="'+rid+'" class="rm-refit">×</button></span>';
-    }).join('');
-    var onboardIds=entry.commanderIds||[];
-    var onboardNames=onboardIds.map(function(rid){var c=resolveCommanderRef(rid);return c?(c.isPlayer?'👤 '+c.name:c.name):null;}).filter(Boolean);
-    // Inline collapsible upgrade panel — faction-filtered, wargear-row style, collapsed by default.
-    var factionUpgrades=upgrades.filter(function(u){return !ship.faction||u.faction===ship.faction;});
-    var isOpen=fleetUpgradePanelOpen[idx]===true; // default false (collapsed)
-    var selectedCount=(entry.upgradeIds||[]).length;
-    var upgradeRows=factionUpgrades.map(function(u){
-      var have=(entry.upgradeIds||[]).filter(function(x){return x===u.id;}).length;
-      var maxed=have>=(u.max||1);
-      return '<div class="wg-row" style="display:flex;align-items:center;gap:.3rem;font-size:.78rem;padding:.2rem 0;">'
-        +'<button type="button" class="counter-btn upg-qb" data-idx="'+idx+'" data-uid="'+u.id+'" data-dir="-1"'+(have<=0?' disabled':'')+'>−</button>'
-        +'<span style="min-width:14px;text-align:center;">'+have+'</span>'
-        +'<button type="button" class="counter-btn upg-qb" data-idx="'+idx+'" data-uid="'+u.id+'" data-dir="1"'+(maxed?' disabled':'')+'>+</button>'
-        +'<span style="flex:1;color:var(--txt);">'+esc(u.name)+(u.grantsWeapon?' <span style="color:var(--orange);font-size:.68rem;">🔫</span>':'')+'</span>'
-        +'<span style="color:#4ad9c9;">'+u.cost+' pt</span>'
-        +'</div>';
-    }).join('');
-    var upgradePanel='<div style="margin-top:.4rem;">'
-      +'<div class="fe-collapse-toggle upg-panel-toggle" data-idx="'+idx+'" style="display:flex;align-items:center;gap:.3rem;cursor:pointer;font-size:.76rem;color:var(--dim);">'
-      +'<span>'+(isOpen?'▲':'▼')+'</span><span>🛠️ Upgrade-ek ('+esc(ship.faction||'—')+')'+(selectedCount?' — '+selectedCount+' kiválasztva':'')+'</span></div>'
-      +'<div style="display:'+(isOpen?'block':'none')+';margin-top:.25rem;padding-left:.2rem;">'
-      +(factionUpgrades.length?upgradeRows:'<div style="color:var(--dim);font-size:.76rem;">Nincs upgrade ehhez a frakcióhoz.</div>')
-      +'</div></div>';
-    return '<div class="fe">'
-      +'<div class="fe-hdr"><span class="fe-name">'+esc(ship.name)+'</span><span class="fe-pts">'+(ship.points+upgCost)+' pt (hajó '+ship.points+' + upgrade '+upgCost+')</span></div>'
-      +'<div class="sc-sub">'+esc(ship.faction||'')+'</div>'
-      +(refitTags?'<div class="fe-upgrades">'+refitTags+'</div>':'')
-      +(onboardNames.length?'<div style="font-size:.78rem;color:#a07aee;margin-top:.35rem;">👑 '+onboardNames.map(esc).join(', ')+'</div>':'')
-      +upgradePanel
-      +'<div class="brow" style="margin-top:.5rem;">'
-      +'<button class="btn bp bsm apply-refit-for-ship" data-idx="'+idx+'">🎲 Refit</button>'
-      +'<button class="btn bp bsm onboard-btn" data-idx="'+idx+'" style="border-color:#a07aee;">👑 Commander</button>'
-      +'<button class="btn bd bsm remove-campaign-ship" data-idx="'+idx+'">🗑️ Eladás</button>'
-      +'</div>'
-      +'</div>';
-  }).join('');
-  el.querySelectorAll('.upg-panel-toggle').forEach(function(t){t.addEventListener('click',function(){
-    var idx=+t.dataset.idx;
-    fleetUpgradePanelOpen[idx]=!(fleetUpgradePanelOpen[idx]===true);
-    renderCampaignFleet();
-  });});
-  el.querySelectorAll('.upg-qb').forEach(function(btn){btn.addEventListener('click',function(){
-    var idx=+btn.dataset.idx, uid=btn.dataset.uid, dir=parseInt(btn.dataset.dir);
-    var f2=getPlayerFleet(activeFleetPlayerId);
-    var entry=f2.ships[idx];
-    var u=upgrades.find(function(x){return x.id===uid;});
-    if(!u) return;
-    if(!entry.upgradeIds) entry.upgradeIds=[];
-    var have=entry.upgradeIds.filter(function(x){return x===uid;}).length;
-    if(dir>0){
-      if(have>=(u.max||1)){ toast('⚠️ Max db elérve ebből.','var(--orange)'); return; }
-      if((p.points||0)<u.cost){ toast('❌ Nincs elég pont ('+p.points+'/'+u.cost+')','var(--red)'); return; }
-      p.points-=u.cost;
-      entry.upgradeIds.push(uid);
-      toast('✅ "'+u.name+'" megvásárolva','var(--green)');
-    } else {
-      var idx2=entry.upgradeIds.indexOf(uid);
-      if(idx2>=0){ entry.upgradeIds.splice(idx2,1); p.points=(p.points||0)+u.cost; toast('Upgrade eltávolítva, pont visszatérítve','#c8b840'); }
-    }
-    saveCampaign(); renderCampaignFleet(); renderPlayers();
-  });});
-  el.querySelectorAll('.rm-refit').forEach(function(btn){btn.addEventListener('click',function(){
-    var idx=+btn.dataset.idx, rid=btn.dataset.rid;
-    var f2=getPlayerFleet(activeFleetPlayerId);
-    var entry=f2.ships[idx];
-    entry.refitIds=(entry.refitIds||[]).filter(function(x){return x!==rid;});
-    saveCampaign(); renderCampaignFleet();
-    toast('Refit eltávolítva','#c8b840');
-  });});
-  el.querySelectorAll('.apply-refit-for-ship').forEach(function(btn){btn.addEventListener('click',function(){ openApplyRefitModal(+btn.dataset.idx); });});
-  el.querySelectorAll('.onboard-btn').forEach(function(btn){btn.addEventListener('click',function(){ openCampaignOnboardModal(+btn.dataset.idx); });});
-  el.querySelectorAll('.remove-campaign-ship').forEach(function(btn){btn.addEventListener('click',function(){
-    if(!confirm('Eladod ezt a hajót? A rá költött pontok nem térülnek automatikusan vissza.')) return;
-    var idx=+btn.dataset.idx;
-    var f2=getPlayerFleet(activeFleetPlayerId);
-    f2.ships.splice(idx,1);
-    saveCampaign(); renderCampaignFleet();
-  });});
-}
-get('btn-add-points').addEventListener('click',function(){
-  var p=players.find(function(x){return x.id===activeFleetPlayerId}); if(!p) return;
-  var amt=prompt('Mennyi pontot adjunk hozzá '+p.name+' egyenlegéhez?','50');
-  if(amt===null) return;
-  var n=parseInt(amt); if(isNaN(n)) return;
-  p.points=(p.points||0)+n;
-  saveCampaign(); renderCampaignFleet(); renderPlayers();
-  toast('💰 '+n+' pont hozzáadva','var(--green)');
-});
-get('btn-buy-ship').addEventListener('click',function(){
-  if(!activeFleetPlayerId){ toast('Előbb válassz játékost','var(--orange)'); return; }
-  renderBuyShipList();
-  openModal('buyship-modal');
-});
-get('buyship-close').addEventListener('click',function(){closeModal('buyship-modal');});
-get('buyship-modal').addEventListener('click',function(e){if(e.target===get('buyship-modal'))closeModal('buyship-modal');});
-function renderBuyShipList(){
-  var ff=get('buyship-faction-filter').value;
-  fillSel('buyship-faction-filter',getUniq(ships,'faction'),ff);
-  var list=ff?ships.filter(function(s){return s.faction===ff;}):ships;
-  var el=get('buyship-list');
-  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🚀</div><p>Nincs hajó a rosterben.</p></div>';return;}
-  el.innerHTML=list.map(function(s){
-    return '<div class="sc"><div class="sc-hdr"><span class="sc-name">'+esc(s.name)+'</span><span class="badge bg-b">'+s.points+' pt</span></div>'
-      +'<div class="sc-sub">'+esc(s.faction||'')+'</div>'
-      +'<div class="sc-acts"><button class="btn bg bsm buy-ship-btn" data-sid="'+s.id+'">Megvásárlás</button></div></div>';
-  }).join('');
-  el.querySelectorAll('.buy-ship-btn').forEach(function(btn){btn.addEventListener('click',function(){
-    var s=ships.find(function(x){return x.id===btn.dataset.sid;});
-    var p=players.find(function(x){return x.id===activeFleetPlayerId;});
-    if(!s||!p) return;
-    if((p.points||0)<s.points){ toast('❌ Nincs elég pont ('+p.points+'/'+s.points+')','var(--red)'); return; }
-    p.points-=s.points;
-    var f=getPlayerFleet(activeFleetPlayerId);
-    f.ships.push({shipId:s.id, upgradeIds:[]});
-    saveCampaign(); closeModal('buyship-modal'); renderCampaignFleet(); renderPlayers();
-    toast('✅ "'+s.name+'" megvásárolva','var(--green)');
-  });});
-}
-get('buyship-faction-filter').addEventListener('change',renderBuyShipList);
-
-// ---- APPLY REFIT (free — no cost) ----
-var applyRefitForIdx=null;
-function openApplyRefitModal(idx){
-  applyRefitForIdx=idx;
-  var f=getPlayerFleet(activeFleetPlayerId);
-  var entry=f.ships[idx];
-  var ship=ships.find(function(s){return s.id===entry.shipId;});
-  get('applyrefit-ship-name').textContent=ship?ship.name:'';
-  renderApplyRefitList();
-  openModal('applyrefit-modal');
-}
-get('applyrefit-close').addEventListener('click',function(){closeModal('applyrefit-modal');});
-get('applyrefit-modal').addEventListener('click',function(e){if(e.target===get('applyrefit-modal'))closeModal('applyrefit-modal');});
-function renderApplyRefitList(){
-  var f=getPlayerFleet(activeFleetPlayerId);
-  var entry=f.ships[applyRefitForIdx];
-  var ship=ships.find(function(s){return s.id===entry.shipId;});
-  var list=refits.filter(function(r){return !ship||!ship.faction||r.faction===ship.faction;});
-  var el=get('applyrefit-list');
-  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎲</div><p>Nincs ehhez a frakcióhoz elérhető refit.</p></div>';return;}
-  var types=getUniq(list,'type');
-  el.innerHTML=types.map(function(t){
-    var items=list.filter(function(r){return r.type===t;}).sort(function(a,b){return (a.roll||0)-(b.roll||0);});
-    return '<div style="margin-bottom:.8rem;"><div style="color:#a07aee;font-weight:bold;font-size:.85rem;margin-bottom:.35rem;">'+esc(t)+'</div>'
-      +items.map(function(r){
-        var applied=(entry.refitIds||[]).indexOf(r.id)>=0;
-        return '<div class="sc purple" style="margin-bottom:.4rem;"><div class="sc-hdr"><span class="sc-name purple">'+esc(r.name)+'</span><span class="badge bp-b">🎲'+r.roll+'</span></div>'
-          +(r.desc?'<div class="sc-sub">'+esc(r.desc.substr(0,70))+'</div>':'')
-          +'<div class="sc-acts"><button class="btn '+(applied?'bd':'bp')+' bsm apply-refit-btn" data-rid="'+r.id+'">'+(applied?'✓ Alkalmazva — eltávolítás':'Alkalmazás')+'</button></div></div>';
-      }).join('')+'</div>';
-  }).join('');
-  el.querySelectorAll('.apply-refit-btn').forEach(function(btn){btn.addEventListener('click',function(){
-    var rid=btn.dataset.rid;
-    if(!entry.refitIds) entry.refitIds=[];
-    var idx2=entry.refitIds.indexOf(rid);
-    if(idx2>=0){ entry.refitIds.splice(idx2,1); toast('Refit eltávolítva','#c8b840'); }
-    else{ entry.refitIds.push(rid); toast('✅ Refit alkalmazva','var(--green)'); }
-    saveCampaign(); renderApplyRefitList(); renderCampaignFleet();
-  });});
-}
-
-// ---- COMMANDER ON BOARD (roster commanders + player characters) ----
-var campaignOnboardForIdx=null;
-function openCampaignOnboardModal(idx){
-  campaignOnboardForIdx=idx;
-  var f=getPlayerFleet(activeFleetPlayerId);
-  var entry=f.ships[idx];
-  var ship=ships.find(function(s){return s.id===entry.shipId;});
-  get('campaign-onboard-ship-name').textContent=ship?ship.name:'';
-  renderCampaignOnboardList();
-  openModal('campaign-onboard-modal');
-}
-get('campaign-onboard-close').addEventListener('click',function(){closeModal('campaign-onboard-modal');});
-get('campaign-onboard-modal').addEventListener('click',function(e){if(e.target===get('campaign-onboard-modal'))closeModal('campaign-onboard-modal');});
-function renderCampaignOnboardList(){
-  var f=getPlayerFleet(activeFleetPlayerId);
-  var entry=f.ships[campaignOnboardForIdx];
-  var ship=ships.find(function(s){return s.id===entry.shipId;});
-  var candidates=[];
-  players.forEach(function(pl){ candidates.push({id:'player:'+pl.id, name:(pl.commanderName||pl.name), isPlayer:true, faction:pl.faction}); });
-  commanders.forEach(function(c){ candidates.push({id:c.id, name:c.name, isPlayer:false, points:c.points, faction:c.faction}); });
-  var list=candidates.filter(function(c){return !ship||!ship.faction||!c.faction||c.faction===ship.faction;});
-  var el=get('campaign-onboard-list');
-  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">👑</div><p>Nincs elérhető commander ehhez a frakcióhoz.</p></div>';return;}
-  el.innerHTML=list.map(function(c){
-    var onThisShip=(entry.commanderIds||[]).indexOf(c.id)>=0;
-    var onOtherShip=null;
-    f.ships.forEach(function(e2,i2){ if(i2!==campaignOnboardForIdx&&(e2.commanderIds||[]).indexOf(c.id)>=0){ var s2=ships.find(function(x){return x.id===e2.shipId;}); onOtherShip=s2?s2.name:'másik hajó'; } });
-    return '<label style="display:flex;align-items:center;gap:.5rem;padding:.5rem;background:var(--inp);border-radius:5px;margin-bottom:.35rem;cursor:pointer;">'
-      +'<input type="checkbox" class="campaign-onboard-cb" data-cid="'+c.id+'"'+(onThisShip?' checked':'')+' style="width:16px;height:16px;">'
-      +'<span style="flex:1;"><b style="color:#a07aee;">'+(c.isPlayer?'👤 ':'')+esc(c.name)+'</b>'+(c.points?' <span style="color:var(--dim);font-size:.78rem;">('+c.points+' pts)</span>':'')
-      +(onOtherShip?'<div style="font-size:.72rem;color:var(--orange);">jelenleg itt: '+esc(onOtherShip)+' — átteszem ide</div>':'')+'</span>'
-      +'</label>';
-  }).join('');
-  el.querySelectorAll('.campaign-onboard-cb').forEach(function(cb){
-    cb.addEventListener('change',function(){
-      var cid=cb.dataset.cid;
-      if(cb.checked){
-        f.ships.forEach(function(e2){ if(e2.commanderIds) e2.commanderIds=e2.commanderIds.filter(function(x){return x!==cid;}); });
-        if(!entry.commanderIds) entry.commanderIds=[];
-        entry.commanderIds.push(cid);
-      } else {
-        entry.commanderIds=(entry.commanderIds||[]).filter(function(x){return x!==cid;});
-      }
-      saveCampaign(); renderCampaignOnboardList(); renderCampaignFleet();
-    });
-  });
-}
-
-// ============================================================
-// CAMPAIGN BATTLE MODE — persistent HP/LD, NO bulk reset.
-// ============================================================
-var CRITS=[
-  {roll:2,name:'Dorsal Armament Damaged'},{roll:3,name:'Starboard Armament Damaged'},
-  {roll:4,name:'Port Armament Damaged'},{roll:5,name:'Prow Armament Damaged'},
-  {roll:6,name:'Engine Room Damaged'},{roll:7,name:'Fire!'},
-  {roll:8,name:'Thrusters Damaged'},{roll:9,name:'Bridge Smashed'},
-  {roll:10,name:'Shields Collapse'},{roll:11,name:'Hull Breach'},{roll:12,name:'Bulkhead Collapse'}
-];
 var activeBattlePlayerId=null;
 function renderBattleFleetSelect(){
   var opts='<option value="">— Válassz játékost —</option>'+players.map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join('');
@@ -1201,41 +794,6 @@ get('battle-player-select').addEventListener('change',function(){
   renderCampaignBattle();
 });
 
-// Structured stats effective value, including refit + upgrade bonuses applied to this entry.
-function applyStatBonus(str,bonus){
-  if(!str||!bonus) return str;
-  var m=String(str).match(/^(-?\d+(?:\.\d+)?)(.*)$/);
-  if(!m) return str;
-  return (parseFloat(m[1])+bonus)+m[2];
-}
-function getCampaignEntryBonus(entry,field){
-  var total=0;
-  (entry.refitIds||[]).forEach(function(rid){var r=refits.find(function(x){return x.id===rid;});if(r&&r[field])total+=r[field];});
-  (entry.upgradeIds||[]).forEach(function(uid){var u=upgrades.find(function(x){return x.id===uid;});if(u&&u[field])total+=u[field];});
-  return total;
-}
-function getCampaignMaxHp(ship,entry){
-  var base=ship.hits?parseInt(ship.hits):8;
-  return base+getCampaignEntryBonus(entry,'hitsBonus');
-}
-function getCampaignEffectiveStats(ship,entry){
-  var fields=[['speed','Speed','speedBonus'],['turns','Turns','turnsBonus'],['shields','Shields','shieldsBonus'],['armour','Armour','armourBonus'],['turret','Turret','turretBonus']];
-  var out=[];
-  fields.forEach(function(f){
-    var base=ship[f[0]]; if(!base) return;
-    var bonus=getCampaignEntryBonus(entry,f[2]);
-    out.push({label:f[1],value:bonus?applyStatBonus(base,bonus):base,boosted:!!bonus});
-  });
-  return out;
-}
-function getCampaignWeapons(ship,entry){
-  var list=(ship.weapons||[]).filter(function(w){return !w.optional;});
-  (entry.upgradeIds||[]).forEach(function(uid){
-    var u=upgrades.find(function(x){return x.id===uid;});
-    if(u&&u.grantsWeapon&&u.weapon&&u.weapon.name) list=list.concat([Object.assign({},u.weapon,{_fromUpgrade:true})]);
-  });
-  return list;
-}
 function renderCampaignBattle(){
   var el=get('campaign-battle-cards');
   if(!activeBattlePlayerId){ el.innerHTML='<div class="empty"><div class="empty-icon">💥</div><p>Válassz egy játékost a csata induláshoz.</p></div>'; return; }
@@ -1244,70 +802,62 @@ function renderCampaignBattle(){
   if(!f.ships.length){ el.innerHTML='<div class="empty"><div class="empty-icon">🚀</div><p>'+esc(p?p.name:'')+' flottájában nincs hajó.</p></div>'; return; }
   var html='';
   f.ships.forEach(function(entry,idx){
-    var ship=ships.find(function(s){return s.id===entry.shipId;}); if(!ship) return;
+    var ship=campResolveShip(entry); if(!ship) return;
+    var baseShip=ship._baseShip||ship;
     var key=activeBattlePlayerId+'_'+idx;
-    var maxHp=getCampaignMaxHp(ship,entry);
-    if(!campaignBattleState[key]) campaignBattleState[key]={hp:maxHp,maxHp:maxHp,leadership:8,crits:{},weaponStatus:{},open:false};
+    var maxHp=campGetMaxHp(ship,entry);
+    if(!campaignBattleState[key]) campaignBattleState[key]={hp:maxHp,maxHp:maxHp,leadership:8,crits:{},weaponStatus:{},open:false,critOpen:false};
     var st=campaignBattleState[key];
     if(st.maxHp!==maxHp){ st.maxHp=maxHp; st.hp=Math.min(st.hp,maxHp); }
     if(st.leadership===undefined) st.leadership=8;
+    if(st.critOpen===undefined) st.critOpen=false;
     var pct=Math.max(0,Math.min(100,(st.hp/st.maxHp)*100));
     var cls=pct<=25?'crit':pct<=50?'low':'';
-    var stats=getCampaignEffectiveStats(ship,entry);
-    var weapons=getCampaignWeapons(ship,entry);
+    var stats=campGetEffectiveStructuredStats(ship,entry);
+    var weapons=campBuildDisplayWeapons(ship,entry);
+    var reloadCount=weapons.filter(function(w){return w.reloadable;}).length;
+    var reloadHint=reloadCount?' <span style="background:var(--teal);color:#fff;padding:.05rem .32rem;border-radius:3px;font-size:.68rem;font-weight:bold;">🔄 '+reloadCount+'</span>':'';
     var onboardNames=(entry.commanderIds||[]).map(function(rid){var c=resolveCommanderRef(rid);return c?(c.isPlayer?'👤 '+c.name:c.name):null;}).filter(Boolean);
     html+='<div class="bc'+(st.hp<=0?' destroyed':'')+'"><div class="bc-head'+(st.open?' open':'')+'" data-key="'+key+'">'
       +(ship.image?'<img src="'+esc(ship.image)+'" style="width:46px;height:46px;object-fit:cover;border-radius:4px;flex-shrink:0;" alt="">':'')
       +'<div class="bc-info"><div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">'
       +'<span class="bc-name">'+esc(ship.name)+(st.hp<=0?' <span style="color:var(--red);font-size:.76rem;">💀</span>':'')+'</span>'
+      +reloadHint
       +'<input type="text" class="bc-note-inp" data-key="'+key+'" value="'+esc(st.note||'')+'" placeholder="+ jegyzet">'
-      +'</div><div class="bc-sub">'+esc(ship.faction||'')+' · '+st.hp+'/'+st.maxHp+' HP · LD '+st.leadership+(onboardNames.length?' · 👑 '+onboardNames.map(esc).join(', '):'')+'</div></div>'
+      +'</div><div class="bc-sub">'+esc(baseShip.faction||'')+' · '+st.hp+'/'+st.maxHp+' HP · LD '+st.leadership+(onboardNames.length?' · <span style="color:#a07aee;">👑 '+onboardNames.map(esc).join(', ')+'</span>':'')+'</div></div>'
       +'<div style="color:var(--dim);font-size:.8rem;padding-left:.5rem;">'+(st.open?'▲':'▼')+'</div></div>'
       +'<div class="bc-body'+(st.open?' open':'')+'">'
       +(stats.length?'<div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;">'+stats.map(function(s){var col=s.boosted?'#4ad9c9':'#7a9aee';return '<span style="background:'+(s.boosted?'#0f1a18':'#1a1a2a')+';color:'+col+';padding:.15rem .5rem;border-radius:3px;font-size:.78rem;'+(s.boosted?'border:1px solid var(--teal);':'')+'">'+esc(s.label)+': '+esc(String(s.value))+(s.boosted?' 🔧':'')+'</span>';}).join('')+'</div>':'')
+      +(ship.stats?'<div style="background:var(--inp);border-radius:4px;padding:.55rem .75rem;margin-bottom:.6rem;font-size:.82rem;white-space:pre-wrap;color:var(--dim);">'+esc(ship.stats)+'</div>':'')
       +'<div class="hp-row"><span style="color:var(--dim);">Hull Points</span><span class="hp-val '+cls+'">'+st.hp+' / '+st.maxHp+'</span></div>'
       +'<div class="hp-track"><div class="hp-fill '+cls+'" style="width:'+pct+'%"></div></div>'
       +'<div class="hp-ctrl" style="margin-bottom:.6rem;"><button class="btn bd bsm hp-adj" data-key="'+key+'" data-d="-1">−1 Sérülés</button><button class="btn bgr bsm hp-adj" data-key="'+key+'" data-d="1">+1 Javítás</button><input type="number" class="hp-set-inp" data-key="'+key+'" value="'+st.hp+'" min="0" max="'+st.maxHp+'"><button class="btn bgh bsm hp-set-btn" data-key="'+key+'">Beállít</button></div>'
-      +'<div class="hp-ctrl" style="margin-bottom:.6rem;"><span style="color:var(--dim);font-size:.82rem;margin-right:.3rem;">Leadership:</span><button class="btn bd bsm ld-adj" data-key="'+key+'" data-d="-1">−1</button><span style="font-weight:bold;min-width:20px;text-align:center;">'+st.leadership+'</span><button class="btn bgr bsm ld-adj" data-key="'+key+'" data-d="1">+1</button></div>'
-      +buildCampaignCritTable(key,st)
-      +buildCampaignWeaponsTable(key,st,weapons)
+      +'<div class="hp-ctrl" style="margin-bottom:.6rem;"><span style="color:var(--dim);font-size:.82rem;margin-right:.3rem;">⭐ Leadership:</span><button class="btn bd bsm ld-adj" data-key="'+key+'" data-d="-1">−1</button><span style="font-weight:bold;min-width:20px;text-align:center;">'+st.leadership+'</span><button class="btn bgr bsm ld-adj" data-key="'+key+'" data-d="1">+1</button></div>'
+      +buildCampaignCritTable(key,st.crits||{},st.critOpen)
+      +(weapons.length?'<div style="margin-top:.5rem;"><div style="color:var(--gold);font-size:.87rem;font-weight:bold;margin-bottom:.45rem;">🔫 Fegyverek <span style="color:var(--dim);font-size:.68rem;font-weight:normal;">(kattints a névre a szabálykönyvhöz)</span></div>'+campBuildWpnTable(weapons,true,key)+'</div>':'')
       +'</div></div>';
   });
   el.innerHTML=html;
+  el.querySelectorAll('.wpn-link').forEach(function(s){s.addEventListener('click',function(e){e.stopPropagation();window.location.href='BFG_Rulebook.html?q='+encodeURIComponent(s.dataset.name);});});
   el.querySelectorAll('.bc-head').forEach(function(h){h.addEventListener('click',function(){var k=h.dataset.key;if(campaignBattleState[k]){campaignBattleState[k].open=!campaignBattleState[k].open;saveCampaignBattle();renderCampaignBattle();}});});
+  el.querySelectorAll('.crit-toggle').forEach(function(d){d.addEventListener('click',function(e){e.stopPropagation();var k=d.dataset.key;if(campaignBattleState[k]){campaignBattleState[k].critOpen=!campaignBattleState[k].critOpen;saveCampaignBattle();renderCampaignBattle();}});});
   el.querySelectorAll('.hp-adj').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var k=b.dataset.key,d=parseInt(b.dataset.d),st=campaignBattleState[k];if(!st)return;st.hp=Math.max(0,Math.min(st.maxHp,st.hp+d));saveCampaignBattle();renderCampaignBattle();});});
   el.querySelectorAll('.hp-set-btn').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var k=b.dataset.key,inp=el.querySelector('.hp-set-inp[data-key="'+k+'"]'),st=campaignBattleState[k];if(!st||!inp)return;st.hp=Math.max(0,Math.min(st.maxHp,parseInt(inp.value)||0));saveCampaignBattle();renderCampaignBattle();});});
   el.querySelectorAll('.hp-set-inp,.bc-note-inp').forEach(function(inp){inp.addEventListener('click',function(e){e.stopPropagation();});});
   el.querySelectorAll('.bc-note-inp').forEach(function(inp){inp.addEventListener('change',function(){var k=inp.dataset.key,st=campaignBattleState[k];if(st){st.note=inp.value;saveCampaignBattle();}});});
   el.querySelectorAll('.ld-adj').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var k=b.dataset.key,d=parseInt(b.dataset.d),st=campaignBattleState[k];if(!st)return;st.leadership=Math.max(1,st.leadership+d);saveCampaignBattle();renderCampaignBattle();});});
-  el.querySelectorAll('.crit-cb').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var k=b.dataset.key,roll=b.dataset.roll,dir=parseInt(b.dataset.dir),st=campaignBattleState[k];if(!st)return;if(!st.crits)st.crits={};st.crits[roll]=Math.max(0,(st.crits[roll]||0)+dir);saveCampaignBattle();renderCampaignBattle();});});
+  el.querySelectorAll('.ccb').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var k=b.dataset.key,roll=b.dataset.roll,dir=parseInt(b.dataset.dir),st=campaignBattleState[k];if(!st)return;if(!st.crits)st.crits={};st.crits[roll]=Math.max(0,(st.crits[roll]||0)+dir);saveCampaignBattle();renderCampaignBattle();});});
   el.querySelectorAll('.camp-wpn-status-btn').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var k=b.dataset.key,wid=b.dataset.wid,st=campaignBattleState[k];if(!st)return;if(!st.weaponStatus)st.weaponStatus={};st.weaponStatus[wid]=(st.weaponStatus[wid]==='fired')?'loaded':'fired';saveCampaignBattle();renderCampaignBattle();});});
 }
-function buildCampaignCritTable(key,st){
-  var crits=st.crits||{};
-  var rows=CRITS.map(function(c){
-    var n=crits[c.roll]||0;
-    return '<tr><td style="padding:.25rem .4rem;text-align:center;color:var(--gold);font-weight:bold;">'+c.roll+'</td>'
-      +'<td style="padding:.25rem .4rem;"><div style="display:flex;align-items:center;gap:.2rem;"><button type="button" class="counter-btn crit-cb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="-1">−</button><span style="min-width:14px;text-align:center;">'+n+'</span><button type="button" class="counter-btn crit-cb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="1">+</button></div></td>'
-      +'<td style="padding:.25rem .4rem;font-size:.78rem;">'+esc(c.name)+'</td></tr>';
-  }).join('');
-  return '<div style="margin-bottom:.7rem;"><div style="color:var(--gold);font-size:.85rem;font-weight:bold;margin-bottom:.35rem;">💥 Kritikus találatok</div><table style="width:100%;border-collapse:collapse;font-size:.8rem;"><tbody>'+rows+'</tbody></table></div>';
+function buildCampaignCritTable(key,crits,open){
+  var totalCrits=Object.values(crits).reduce(function(s,v){return s+v;},0);
+  var header='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;cursor:pointer;" class="crit-toggle" data-key="'+key+'">'
+    +'<span style="color:var(--gold);font-size:.87rem;font-weight:bold;">💥 Kritikus Találatok'+(totalCrits>0?' <span style="background:var(--red);color:#fff;padding:.08rem .32rem;border-radius:3px;font-size:.72rem;">'+totalCrits+'</span>':'')+'</span>'
+    +'<span style="color:var(--dim);font-size:.8rem;">'+(open?'▲ Összecsuk':'▼ Kibont')+'</span></div>';
+  if(!open) return '<div style="margin-bottom:.75rem;">'+header+'</div>';
+  var rows=CRITS.map(function(c){var n=crits[c.roll]||0;var fires='';for(var i=0;i<n;i++)fires+='<span class="fire">🔥</span>';return '<tr><td class="cr">'+c.roll+'</td><td class="cd">'+(c.dmg||'')+'</td><td><div class="cc"><button class="ccb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="-1">−</button><span class="ccn">'+n+'</span><button class="ccb" data-key="'+key+'" data-roll="'+c.roll+'" data-dir="1">+</button></div></td><td><span class="crit-nm">'+esc(c.name)+'</span></td><td><div class="fires">'+fires+'</div></td></tr>';}).join('');
+  return '<div style="margin-bottom:.75rem;">'+header+'<table class="crit-tbl"><thead><tr><th>2D6</th><th>+Dmg</th><th>Db</th><th>Eredmény</th><th>🔥</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-function buildCampaignWeaponsTable(key,st,weapons){
-  if(!weapons.length) return '';
-  var wst=st.weaponStatus||{};
-  var rows=weapons.map(function(w){
-    var reloadCell='';
-    if(w.reloadable&&w.id){
-      var fired=wst[w.id]==='fired';
-      reloadCell='<button type="button" class="camp-wpn-status-btn" data-key="'+key+'" data-wid="'+w.id+'" style="padding:.2rem .5rem;border-radius:3px;border:1px solid '+(fired?'var(--red)':'var(--green)')+';background:'+(fired?'#2a0a0a':'#0a2a0a')+';color:'+(fired?'var(--red)':'var(--green)')+';font-size:.72rem;cursor:pointer;font-weight:bold;">'+(fired?'🔴 Kilőve':'🟢 Betöltve')+'</button>';
-    }
-    var srcBadge=w._fromUpgrade?' <span style="color:var(--orange);font-size:.65rem;">(upgrade)</span>':'';
-    return '<tr><td style="padding:.3rem .4rem;font-weight:bold;color:var(--gold);white-space:nowrap;">'+esc(w.name)+srcBadge+'</td><td style="padding:.3rem .4rem;color:var(--dim);font-size:.78rem;">'+esc(w.range||'—')+' · '+esc(w.fp||'—')+' · '+esc(w.arc||'—')+'</td><td style="padding:.3rem .4rem;">'+reloadCell+'</td></tr>';
-  }).join('');
-  return '<div><div style="color:var(--gold);font-size:.85rem;font-weight:bold;margin-bottom:.35rem;">🔫 Fegyverek</div><div style="overflow-x:auto;"><table style="width:100%;min-width:380px;border-collapse:collapse;font-size:.8rem;"><tbody>'+rows+'</tbody></table></div></div>';
-}
-
 
 function renderLogSelectors(){
   renderPlayerSelects();
@@ -1352,7 +902,7 @@ function renderBattleLog(){
 // DATA / GITHUB SYNC
 // ============================================================
 function exportCampaign(){
-  return JSON.stringify({players:players,planets:planets,connections:connections,upgrades:upgrades,campaignFleets:campaignFleets,battleLog:battleLog},null,2);
+  return JSON.stringify({players:players,planets:planets,connections:connections,campaignFleets:campaignFleets,battleLog:battleLog},null,2);
 }
 get('btn-export-campaign').addEventListener('click',function(){
   dl(exportCampaign(),'campaign.json');
@@ -1365,9 +915,9 @@ get('import-campaign-file').addEventListener('change',function(){
     try{
       var obj=JSON.parse(e.target.result);
       players=obj.players||[]; planets=obj.planets||[]; connections=obj.connections||[];
-      upgrades=obj.upgrades||[]; campaignFleets=obj.campaignFleets||[]; battleLog=obj.battleLog||[];
+      campaignFleets=obj.campaignFleets||[]; battleLog=obj.battleLog||[];
       saveCampaign();
-      renderPlayers(); renderPlayerSelects(); renderUpgrades(); renderMap(); renderBattleLog();
+      renderPlayers(); renderPlayerSelects(); renderMap(); renderBattleLog();
       get('import-status').style.color='var(--green)';
       get('import-status').textContent='✅ Kampány importálva';
       toast('✅ Kampány importálva','var(--green)');
@@ -1381,11 +931,21 @@ get('btn-reload-campaign').addEventListener('click',function(){
 });
 get('btn-reset-campaign').addEventListener('click',function(){
   if(!confirm('Biztosan törlöd a TELJES kampányt ebből a böngészőből? Exportáltad már?')) return;
-  players=[]; planets=[]; connections=[]; upgrades=[]; campaignFleets=[]; battleLog=[];
+  players=[]; planets=[]; connections=[]; campaignFleets=[]; battleLog=[];
   saveCampaign();
-  renderPlayers(); renderPlayerSelects(); renderUpgrades(); renderMap(); renderBattleLog();
+  renderPlayers(); renderPlayerSelects(); renderMap(); renderBattleLog();
   toast('🧹 Kampány törölve','#c8b840');
 });
+// Refits/Upgrades are centrally managed & created in BFG_Dev.html, but Campaign
+// reads them independently too (data/refits.json + data/upgrades.json) so it
+// works standalone even if nobody has opened the Developer page in this browser yet.
+async function autoLoadCampaignCatalogs(){
+  if(IS_LOCAL) return;
+  try{ var r1=await fetch('./data/refits.json?_='+Date.now()); if(r1.ok) refits=await r1.json(); }catch(e){}
+  try{ var r2=await fetch('./data/upgrades.json?_='+Date.now()); if(r2.ok) upgrades=await r2.json(); }catch(e){}
+  localStorage.setItem('bfg_campaign_refits',JSON.stringify(refits));
+  localStorage.setItem('bfg_campaign_upgrades',JSON.stringify(upgrades));
+}
 async function autoLoadCampaign(){
   var el=get('load-status');
   function set(bg,col,txt){el.style.background=bg;el.style.color=col;el.textContent=txt;}
@@ -1396,13 +956,14 @@ async function autoLoadCampaign(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     var obj=await res.json();
     players=obj.players||[]; planets=obj.planets||[]; connections=obj.connections||[];
-    upgrades=obj.upgrades||[]; campaignFleets=obj.campaignFleets||[]; battleLog=obj.battleLog||[];
+    campaignFleets=obj.campaignFleets||[]; battleLog=obj.battleLog||[];
     saveCampaign();
-    renderPlayers(); renderPlayerSelects(); renderUpgrades(); renderMap(); renderBattleLog();
+    renderPlayers(); renderPlayerSelects(); renderMap(); renderBattleLog();
     set('#0d2b1a','var(--green)','✅ Kampány betöltve GitHub-ról ('+players.length+' játékos, '+planets.length+' csillag).');
   }catch(e){
     set('#2b2a0d','#c8b840', players.length?'⚠️ campaign.json nem található. '+players.length+' játékos localStorage-ból.':'⚠️ campaign.json nem található. Hozz létre egy kampányt, vagy importálj egyet.');
   }
+  await autoLoadCampaignCatalogs();
 }
 
 // ============================================================
@@ -1412,7 +973,6 @@ loadAll();
 renderColorPicker();
 renderPlayers();
 renderPlayerSelects();
-renderUpgrades();
 renderMap();
 renderBattleLog();
 get('log-date').value=new Date().toISOString().substr(0,10);
