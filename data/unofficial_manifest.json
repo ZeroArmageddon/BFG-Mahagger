@@ -8,6 +8,12 @@
     "RAK_GOL_MAULER_HEAVY_ESCORT",
     "RAK_GOL_MARAUDER_CLASS",
     "RAK_GOL_BUTCHER_CLASS",
-    "EXCORIATOR_CLASS_GRAND_CRUISER"
+    "EXCORIATOR_CLASS_GRAND_CRUISER",
+    "UNIQUE_VESSEL_The_Keep",
+    "Redoubt_Escort",
+    "Warpcutter_Escort",
+    "Overseer",
+    "MOLE_MINING_DRONE",
+    "TARGE_BATTLE_DRONE"
   ]
 }

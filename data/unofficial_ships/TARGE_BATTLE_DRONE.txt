@@ -1,0 +1,48 @@
+{
+  "id": "_mt3gqjk9jfjte",
+  "name": "TARGE BATTLE DRONE",
+  "type": "Heavy Escort",
+  "faction": "Tau",
+  "subfaction": "Demiurg",
+  "points": 35,
+  "hits": 1,
+  "stats": "An Overseer must be part of a 2 to 5 heavy drones squadron.",
+  "image": "",
+  "weapons": [
+    {
+      "id": "_mt3gnz4ty96ko",
+      "name": "Weapon Battery",
+      "range": "45 cm",
+      "fp": "3",
+      "arc": "Front",
+      "locations": [],
+      "optional": false,
+      "pts": 0,
+      "max": 1,
+      "reloadable": false
+    },
+    {
+      "id": "_mt3gnz9t1hhyz",
+      "name": "Cutting Beam",
+      "range": "15 cm",
+      "fp": "Special (Max 2)",
+      "arc": "Front",
+      "locations": [],
+      "optional": false,
+      "pts": 0,
+      "max": 1,
+      "reloadable": false
+    }
+  ],
+  "wargear": [],
+  "variants": [],
+  "unofficial": true,
+  "packageName": "Xenologia Observa - Demiurg",
+  "advanced": true,
+  "weaponGroups": [],
+  "speed": "30 cm",
+  "turns": "90°",
+  "shields": "1",
+  "armour": "4+",
+  "turret": "2"
+}

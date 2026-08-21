@@ -1,0 +1,48 @@
+{
+  "id": "_mt3gm9oo18s96",
+  "name": "MOLE MINING DRONE",
+  "type": "Heavy Escort",
+  "faction": "Tau",
+  "subfaction": "Demiurg",
+  "points": 25,
+  "hits": 1,
+  "stats": "An Overseer must be part of a 2 to 5 heavy drones squadron.",
+  "image": "",
+  "weapons": [
+    {
+      "id": "_mt3gimomh8q38",
+      "name": "Torpedo Shilo",
+      "range": "30 cm",
+      "fp": "2",
+      "arc": "Front",
+      "locations": [],
+      "optional": false,
+      "pts": 0,
+      "max": 1,
+      "reloadable": true
+    },
+    {
+      "id": "_mt3gimt00jdha",
+      "name": "Cutting Beam",
+      "range": "15 cm",
+      "fp": "Special (Max 2)",
+      "arc": "Front",
+      "locations": [],
+      "optional": false,
+      "pts": 0,
+      "max": 1,
+      "reloadable": false
+    }
+  ],
+  "wargear": [],
+  "variants": [],
+  "unofficial": true,
+  "packageName": "Xenologia Observa - Demiurg",
+  "advanced": true,
+  "weaponGroups": [],
+  "speed": "20 cm",
+  "turns": "90°",
+  "shields": "1",
+  "armour": "4+",
+  "turret": "1"
+}
