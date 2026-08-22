@@ -197,17 +197,17 @@ nav::-webkit-scrollbar{display:none;}
       <input type="text" id="ship-img-url" placeholder="https://...">
       <input type="file" id="ship-img-file" accept="image/*" style="margin-top:.32rem;">
       <div id="ship-img-prev-wrap" style="display:none;margin-top:.32rem;border-radius:4px;border:1px solid #333;background-image:linear-gradient(45deg,#2a2a35 25%,transparent 25%),linear-gradient(-45deg,#2a2a35 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2a2a35 75%),linear-gradient(-45deg,transparent 75%,#2a2a35 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;background-color:#1a1a25;">
-        <img id="ship-img-prev" style="width:100%;max-height:220px;object-fit:contain;display:block;">
+        <img id="ship-img-prev" style="width:100%;max-height:220px;object-fit:contain;display:block;cursor:default;" title="Ha be van kapcsolva a háttér eltávolítás, kattints egy megmaradt foltra az eltávolításához">
       </div>
       <div id="bg-removal-panel" style="display:none;margin-top:.5rem;padding:.6rem;background:var(--inp);border-radius:5px;border:1px solid #2a2a3a;">
         <button type="button" class="loc-check bg-removal-toggle" id="bg-removal-toggle" style="border-color:var(--teal);">☐ Háttér eltávolítása (kísérleti)</button>
         <div id="bg-removal-controls" style="display:none;margin-top:.5rem;">
           <label style="font-size:.76rem;color:var(--dim);display:block;margin-bottom:.3rem;">
-            Érzékenység: <span id="bg-threshold-val">205</span>
-            <span style="font-size:.7rem;">(alacsonyabb = csak a legvilágosabb pixelek tűnnek el, magasabb = a szürkésebb háttér is)</span>
+            Érzékenység: <span id="bg-threshold-val">45</span>
+            <span style="font-size:.7rem;">(alacsonyabb = csak a háttérrel majdnem pontosan egyező pixelek tűnnek el, magasabb = távolabbi árnyalatok is)</span>
           </label>
-          <input type="range" id="bg-threshold" min="140" max="245" value="205" style="width:100%;">
-          <p style="font-size:.72rem;color:var(--dim);margin-top:.35rem;">A körvonalak megállítják a törlést, így a hajón belüli világos részek megmaradnak. Ha a kép nem PNG/átlátszó forrásból jött, próbálj más érzékenységet, ha a körvonal is eltűnne.</p>
+          <input type="range" id="bg-threshold" min="10" max="150" value="45" style="width:100%;">
+          <p style="font-size:.72rem;color:var(--dim);margin-top:.35rem;">A háttér színét a kép sarkaiból méri — világos ÉS sötét háttérrel is működik. A körvonalak megállítják a törlést, így a hajón belüli világos/sötét részek biztonságban vannak. <b style="color:var(--teal);">Ha egy elszigetelt folt mégis megmarad valahol a kép belsejében: kattints rá közvetlenül a képen</b>, és csak azt a foltot távolítja el, semmi mást.</p>
         </div>
       </div>
     </div>
@@ -493,23 +493,95 @@ function removeBackgroundFromDataUrl(dataUrl, threshold){
       try{ imgData=ctx.getImageData(0,0,w,h); }
       catch(e){ resolve(dataUrl); return; } // cross-origin tainted canvas — can't process
       var data=imgData.data;
+
+      // Sample the background color from the four corners instead of assuming
+      // it's white — this makes dark/black backgrounds work too, since we now
+      // match "how close is this pixel to the background color" rather than
+      // "is this pixel light".
+      function rgbAt(p){ var o=p*4; return [data[o],data[o+1],data[o+2]]; }
+      var corners=[rgbAt(0),rgbAt(w-1),rgbAt((h-1)*w),rgbAt((h-1)*w+w-1)];
+      var bg=[0,0,0];
+      corners.forEach(function(c){ bg[0]+=c[0]/4; bg[1]+=c[1]/4; bg[2]+=c[2]/4; });
+      function colorDist(p){
+        var o=p*4;
+        var dr=data[o]-bg[0], dg=data[o+1]-bg[1], db=data[o+2]-bg[2];
+        return Math.sqrt(dr*dr+dg*dg+db*db);
+      }
+
       var visited=new Uint8Array(w*h);
-      var queue=new Int32Array(w*h);
-      var qHead=0, qTail=0;
-      function lightness(p){ var o=p*4; return 0.299*data[o]+0.587*data[o+1]+0.114*data[o+2]; }
-      for(var x=0;x<w;x++){ queue[qTail++]=x; queue[qTail++]=(h-1)*w+x; }
-      for(var y=0;y<h;y++){ queue[qTail++]=y*w; queue[qTail++]=y*w+(w-1); }
-      while(qHead<qTail){
-        var p=queue[qHead++];
+      var queue=[];
+
+      // Seed only from the border — this is what keeps enclosed interior
+      // highlights safe (they never get touched unless connected to the edge).
+      // Stray disconnected background patches are handled separately by the
+      // manual "click to remove this spot" tool, not by blindly seeding a grid.
+      for(var x=0;x<w;x++){ queue.push(x); queue.push((h-1)*w+x); }
+      for(var y=0;y<h;y++){ queue.push(y*w); queue.push(y*w+(w-1)); }
+
+      var qi=0;
+      while(qi<queue.length){
+        var p=queue[qi++];
         if(visited[p]) continue;
         visited[p]=1;
-        if(lightness(p)<threshold) continue; // dark outline pixel — wall, keep opaque, stop spreading
-        data[p*4+3]=0; // background pixel — make transparent
+        if(colorDist(p)>=threshold) continue; // not background-colored — wall, keep opaque, stop spreading
+        data[p*4+3]=0; // background-colored pixel — make transparent
         var x2=p%w, y2=(p/w)|0;
-        if(x2>0){ var n=p-1; if(!visited[n]) queue[qTail++]=n; }
-        if(x2<w-1){ var n=p+1; if(!visited[n]) queue[qTail++]=n; }
-        if(y2>0){ var n=p-w; if(!visited[n]) queue[qTail++]=n; }
-        if(y2<h-1){ var n=p+w; if(!visited[n]) queue[qTail++]=n; }
+        if(x2>0){ var n=p-1; if(!visited[n]) queue.push(n); }
+        if(x2<w-1){ var n=p+1; if(!visited[n]) queue.push(n); }
+        if(y2>0){ var n=p-w; if(!visited[n]) queue.push(n); }
+        if(y2<h-1){ var n=p+w; if(!visited[n]) queue.push(n); }
+      }
+      ctx.putImageData(imgData,0,0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror=function(){ resolve(dataUrl); };
+    img.src=dataUrl;
+  });
+}
+
+// Removes just ONE connected patch, starting from a clicked point — for when
+// the automatic border-only pass leaves behind a stray disconnected background
+// patch (e.g. a leftover rectangle in the middle of the image). Uses the
+// clicked pixel's own color as the reference, so it precisely targets whatever
+// shade is under the cursor rather than the image's overall background color.
+function removeSpotAt(dataUrl,threshold,clickXRatio,clickYRatio){
+  return new Promise(function(resolve){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width,h=img.height;
+      var canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      var ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      var imgData;
+      try{ imgData=ctx.getImageData(0,0,w,h); }
+      catch(e){ resolve(dataUrl); return; }
+      var data=imgData.data;
+      var startX=Math.max(0,Math.min(w-1,Math.round(clickXRatio*w)));
+      var startY=Math.max(0,Math.min(h-1,Math.round(clickYRatio*h)));
+      var startP=startY*w+startX;
+      if(data[startP*4+3]===0){ resolve(dataUrl); return; } // already transparent, nothing to do
+      var refR=data[startP*4], refG=data[startP*4+1], refB=data[startP*4+2];
+      function colorDist(p){
+        var o=p*4;
+        var dr=data[o]-refR, dg=data[o+1]-refG, db=data[o+2]-refB;
+        return Math.sqrt(dr*dr+dg*dg+db*db);
+      }
+      var visited=new Uint8Array(w*h);
+      var queue=[startP];
+      var qi=0;
+      while(qi<queue.length){
+        var p=queue[qi++];
+        if(visited[p]) continue;
+        visited[p]=1;
+        if(data[p*4+3]===0) continue;
+        if(colorDist(p)>=threshold) continue;
+        data[p*4+3]=0;
+        var x=p%w, y=(p/w)|0;
+        if(x>0){ var n=p-1; if(!visited[n]) queue.push(n); }
+        if(x<w-1){ var n=p+1; if(!visited[n]) queue.push(n); }
+        if(y>0){ var n=p-w; if(!visited[n]) queue.push(n); }
+        if(y<h-1){ var n=p+w; if(!visited[n]) queue.push(n); }
       }
       ctx.putImageData(imgData,0,0);
       resolve(canvas.toDataURL('image/png'));
@@ -527,8 +599,10 @@ get('bg-removal-toggle').addEventListener('click',function(){
   if(on){
     applyBgRemoval();
   } else {
+    bgRemovalCurrent='';
     get('ship-img-url').value=bgRemovalSource;
     setImagePreview(bgRemovalSource,false);
+    get('ship-img-prev').style.cursor='default';
   }
 });
 get('bg-threshold').addEventListener('input',function(){
@@ -536,13 +610,31 @@ get('bg-threshold').addEventListener('input',function(){
   clearTimeout(bgThresholdDebounce);
   bgThresholdDebounce=setTimeout(applyBgRemoval,150);
 });
+var bgRemovalCurrent=''; // the live result after auto-removal + any manual spot-clicks
 async function applyBgRemoval(){
   if(!bgRemovalSource) return;
   var threshold=parseInt(get('bg-threshold').value);
   var result=await removeBackgroundFromDataUrl(bgRemovalSource,threshold);
+  bgRemovalCurrent=result;
   get('ship-img-url').value=result;
   setImagePreview(result,false);
+  get('ship-img-prev').style.cursor='crosshair';
 }
+// Click-to-remove-a-spot — targets one leftover disconnected patch (like a
+// stray rectangle) without touching the rest of the image, unlike re-running
+// the full automatic pass with a higher threshold which risks eating into
+// legitimate interior highlights too.
+get('ship-img-prev').addEventListener('click',async function(e){
+  if(!bgRemovalCurrent) return; // only active once background removal has been applied at least once
+  var rect=this.getBoundingClientRect();
+  var xRatio=(e.clientX-rect.left)/rect.width;
+  var yRatio=(e.clientY-rect.top)/rect.height;
+  var threshold=parseInt(get('bg-threshold').value);
+  var result=await removeSpotAt(bgRemovalCurrent,threshold,xRatio,yRatio);
+  bgRemovalCurrent=result;
+  get('ship-img-url').value=result;
+  setImagePreview(result,false);
+});
 
 async function compressExistingImages(){
   var candidates=ships.filter(function(s){ return s.image && s.image.indexOf('data:image')===0 && s.image.length>150*1024; });
