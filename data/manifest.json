@@ -35,7 +35,9 @@
     "BASTION_COMMERCE_VESSEL",
     "CITADEL_COMMERCE_VESSEL",
     "WARSPHERE",
-    "KOR_CASTE_ORBITAL_CITY"
+    "KOR_CASTE_ORBITAL_CITY",
+    "DHOW",
+    "CARAVAN"
   ],
   "commanders": [
     "One_extra_re_roll",
@@ -45,6 +47,8 @@
     "Tau_Kor_el_Ld_8_",
     "Tau_Kor_O_Ld_9_",
     "Aun_el_one_extra_re_roll_",
-    "Aun_O_two_extra_re_rolls_"
+    "Aun_O_two_extra_re_rolls_",
+    "One_extra_re_roll_",
+    "Two_extra_re_rolls"
   ]
 }
